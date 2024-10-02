@@ -3,10 +3,15 @@ from rest_framework.response import Response
 from rest_framework import status
 from .models import User, UserRole
 from .serializers import UserLoginSerializer  # Use the new UserLoginSerializer
-from .utils import generate_otp, send_otp, store_otp
+# from .utils import generate_otp, send_otp, store_otp
 # from django.core.cache import cache
 
+from rest_framework.views import APIView
+from django.contrib.auth import logout
 
+
+
+# Login  Api View 
 class LoginView(generics.GenericAPIView):
     serializer_class = UserLoginSerializer
 
@@ -36,3 +41,11 @@ class LoginView(generics.GenericAPIView):
         except User.DoesNotExist:
             return Response({'message': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
 
+
+
+# Logout API View
+class LogoutView(APIView):
+    def post(self, request):
+        # Log the user out by ending their session
+        logout(request)
+        return Response({'message': 'Logout successful'}, status=status.HTTP_200_OK)
