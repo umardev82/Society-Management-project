@@ -11,7 +11,7 @@ router = DefaultRouter()
 router.register('block_info', BlockInfoViewSet, basename='block_info')
 router.register('property_type_info',PropertyTypeViewSet,basename='property_type_information')
 router.register('unit_type_info',UnitTypeViewSet,basename='unit_type_information')
-router.register('amenity_info',PropertyTypeViewSet,basename='amenity_information')
+router.register('amenity_info',AmenityViewSet,basename='amenity_information')
 router.register('property_info', PropertyInfoViewSet, basename='property_info')
 
 urlpatterns = [

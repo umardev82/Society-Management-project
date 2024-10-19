@@ -7,8 +7,8 @@ const Dashboard = () => {
 
 
   return (
-    <div className="py-4 bg-gray-100">
-     
+    <div className="py-4">
+  
     </div>
   );
 };

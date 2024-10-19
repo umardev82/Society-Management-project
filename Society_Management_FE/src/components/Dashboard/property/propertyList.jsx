@@ -1,85 +1,319 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import useProperty from '../../../hooks/useProperty';
+import useBlock from '../../../hooks/useBlock';
+import useAmenity from '../../../hooks/useAmenity';
+import useUnitType from '../../../hooks/useUnitType';
+import usePropertyType from '../../../hooks/usePropertyType';
+import Modal from '../modal';
 import { FaEdit, FaTrash, FaEye } from 'react-icons/fa';
-import { BsThreeDotsVertical } from "react-icons/bs";
 
-const PropertyList = ({ properties }) => {
-  const handleEdit = (property) => {
-    console.log('Editing property', property);
-    // Implement edit functionality here
+const PropertyList = () => {
+  const { properties, deleteProperty, editProperty, fetchProperties, loading, error } = useProperty();
+  const { blocks, fetchBlocks } = useBlock();
+  const { amenities, fetchAmenities } = useAmenity();
+  const { unitTypes, fetchUnitTypes} = useUnitType();
+  const { propertyTypes, fetchPropertyTypes} = usePropertyType();
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [selectedProperty, setSelectedProperty] = useState(null);
+  const [editPropertyData, setEditPropertyData] = useState({});
+
+  useEffect(() => {
+    fetchProperties();
+    fetchAmenities();
+    fetchBlocks();
+    fetchUnitTypes();
+    fetchPropertyTypes();
+  }, []);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>Error loading properties: {error.message}</div>;
+  }
+
+  const handleOpenEditModal = (property) => {
+    setSelectedProperty(property);
+    setEditPropertyData({
+      block_name: property.block_name?.id,      
+      building_name: property.building_name,
+      property_name: property.property_name,
+      property_type: property.property_type?.pro_type_id,
+      unit_type: property.unit_type?.unit_type_id,
+      floor_number: property.floor_number,
+      number_of_bedrooms: property.number_of_bedrooms,
+      number_of_bathrooms: property.number_of_bathrooms,
+      balcony_or_patio: property.balcony_or_patio,
+      parking_space: property.parking_space,
+      number_of_halls: property.number_of_halls,
+      street_address: property.street_address,
+      city: property.city,
+      country: property.country,
+      area_type: property.area_type,
+      area_value: property.area_value,
+      property_value: property.property_value,
+      amenity_name: property.amenity_name?.amenity_id,
+      size_in_sqm: property.size_in_sqm,
+    });
+    setIsEditModalOpen(true);
   };
 
-  const handleDelete = (property) => {
-    console.log('Deleting property', property);
-    // Implement delete functionality here
+  const handleOpenDeleteModal = (property) => {
+    setSelectedProperty(property);
+    setIsDeleteModalOpen(true);
   };
 
-  const handleView = (property) => {
-    console.log('Viewing property', property);
-    // Implement view functionality here
+  const handleOpenViewModal = (property) => {
+    setSelectedProperty(property);
+    setIsViewModalOpen(true);
+  };
+
+  const handleEditProperty = () => {
+    if (selectedProperty) {
+      editProperty(selectedProperty.property_id, editPropertyData).then(() => {
+        fetchProperties();
+        setIsEditModalOpen(false);
+      }).catch(error => {
+        console.error("Error editing property:", error);
+      });
+    }
+  };
+  
+
+  const handleDeleteProperty = () => {
+    if (selectedProperty) {
+      deleteProperty(selectedProperty.property_id);
+      setIsDeleteModalOpen(false);
+    }
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setEditPropertyData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
   };
 
   return (
-    <div className="py-5">
-      <table className="min-w-full text-sm text-gray-600 bg-white border-collapse border border-gray-200">
+    <div className="py-5 overflow-x-scroll">
+      <table className=" text-sm text-gray-600 bg-white border-collapse border border-gray-200">
         <thead>
-          <tr className=''>
-            <th className="border text-start px-4 py-2">#</th>
-            <th className="border text-start px-4 py-2">Name</th>
-            <th className="border text-start px-4 py-2">Property Type</th>
-            <th className="border text-start px-4 py-2">Owner</th>
-            <th className="border text-start px-4 py-2">Location</th>
-            <th className="border text-start px-4 py-2">Status</th>
-            <th className="border text-start px-4 py-2">Action</th>
+          <tr>
+            <th className="border text-start px-4 whitespace-nowrap py-2 ">#</th>
+            <th className="border text-start px-4 whitespace-nowrap py-2">Block Name</th>
+            <th className="border text-start px-4 whitespace-nowrap py-2">Building Name</th>
+            <th className="border text-start px-4 whitespace-nowrap py-2">Property Name</th>
+            <th className="border text-start px-4 whitespace-nowrap py-2">Property Number</th>
+            <th className="border text-start px-4 whitespace-nowrap py-2">Property Type</th>
+            <th className="border text-start px-4 whitespace-nowrap py-2">Unit Number</th>
+            <th className="border text-start px-4 whitespace-nowrap py-2">Unit Type</th>
+            <th className="border text-start px-4 whitespace-nowrap py-2">Floor Number</th>
+            <th className="border text-start px-4 whitespace-nowrap py-2">Number Of Bedrooms</th>
+            <th className="border text-start px-4 whitespace-nowrap py-2">Number Of Bathrooms</th>
+            <th className="border text-start px-4 whitespace-nowrap py-2">Balcony/Patio</th>
+            <th className="border text-start px-4 whitespace-nowrap py-2">Parking Space</th>
+            <th className="border text-start px-4 whitespace-nowrap py-2">No Of Halls</th>
+            <th className="border text-start px-4 whitespace-nowrap py-2">Street Address</th>
+            <th className="border text-start px-4 whitespace-nowrap py-2">City</th>
+            <th className="border text-start px-4 whitespace-nowrap py-2">Country</th>
+            <th className="border text-start px-4 whitespace-nowrap py-2">Area Type</th>
+            <th className="border text-start px-4 whitespace-nowrap py-2">Area Value</th>
+            <th className="border text-start px-4 whitespace-nowrap py-2">Property Value</th>
+            <th className="border text-start px-4 whitespace-nowrap py-2">Amenity Name</th>
+            <th className="border text-start px-4 whitespace-nowrap py-2">Size in SQM</th>
+            <th className="border text-start px-4 whitespace-nowrap py-2">Actions</th>
           </tr>
         </thead>
         <tbody>
           {properties.map((property, index) => (
-            <tr key={index}>
-              <td className="border px-4 py-2">{property.No}</td>
-              <td className="border px-4 py-2">{property.Name}</td>
-              <td className="border px-4 py-2">{property.propertyType}</td>
-              <td className="border px-4 py-2">{property.owner}</td>
-              <td className="border px-4 py-2">{property.location}</td>
-              <td className="border px-4 py-2">{property.status}</td>
-              <td className="border px-4 py-2">
-                {/* Dropdown Actions */}
-                <div className="relative">
-                  <button className="focus:outline-none"><BsThreeDotsVertical/></button>
-                  <div className="absolute bg-white shadow-lg border border-gray-200 hidden group-hover:block">
-                    <ul className="block text-left">
-                      <li className="px-4 flex items-center  gap-4 py-2 hover:bg-gray-200 cursor-pointer" onClick={() => handleView(property)}>
-                        <FaEye /> View
-                      </li>
-                      <li className="px-4 flex items-center  gap-4 py-2 hover:bg-gray-200 cursor-pointer" onClick={() => handleEdit(property)}>
-                        <FaEdit /> Edit
-                      </li>
-                      <li className="px-4 flex items-center  gap-4 py-2 hover:bg-gray-200 cursor-pointer" onClick={() => handleDelete(property)}>
-                        <FaTrash /> Delete
-                      </li>
-                    </ul>
-                  </div>
-                </div>
+            <tr key={property.property_id}>
+              <td className="border px-4 whitespace-nowrap py-2 ">{index + 1}</td>
+              <td className="border px-4 whitespace-nowrap py-2 ">{property.block_name?.block_name || "N/A"}</td>
+              <td className="border px-4 whitespace-nowrap py-2 ">{property.building_name}</td>
+              <td className="border px-4 whitespace-nowrap py-2 ">{property.property_name}</td>
+              <td className="border px-4 whitespace-nowrap py-2 ">{property.property_type?.property_number}</td>
+              <td className="border px-4 whitespace-nowrap py-2 ">{property.property_type?.property_name}</td>
+              <td className="border px-4 whitespace-nowrap py-2 ">{property.unit_type?.unit_number}</td>
+              <td className="border px-4 whitespace-nowrap py-2 ">{property.unit_type?.unit_name}</td>
+              <td className="border px-4 whitespace-nowrap py-2 ">{property.floor_number}</td>
+              <td className="border px-4 whitespace-nowrap py-2 ">{property.number_of_bedrooms}</td>
+              <td className="border px-4 whitespace-nowrap py-2 ">{property.number_of_bathrooms}</td>
+              <td className="border px-4 whitespace-nowrap py-2 ">{property.balcony_or_patio}</td>
+              <td className="border px-4 whitespace-nowrap py-2 ">{property.parking_space}</td>
+              <td className="border px-4 whitespace-nowrap py-2 ">{property.number_of_halls}</td>
+              <td className="border px-4 whitespace-nowrap py-2 ">{property.street_address}</td>
+              <td className="border px-4 whitespace-nowrap py-2 ">{property.city}</td>
+              <td className="border px-4 whitespace-nowrap py-2 ">{property.country}</td>
+              <td className="border px-4 whitespace-nowrap py-2 ">{property.area_type}</td>
+              <td className="border px-4 whitespace-nowrap py-2 ">{property.area_value}</td>
+              <td className="border px-4 whitespace-nowrap py-2 ">{property.property_value}</td>
+              <td className="border px-4 whitespace-nowrap py-2 ">{property.amenity_name?.amenity_name}</td>
+              <td className="border px-4 whitespace-nowrap py-2 ">{property.size_in_sqm}</td>
+              <td className="border px-4 whitespace-nowrap py-2 ">
+                <button className='text-green-700 px-1' onClick={() => handleOpenViewModal(property)}><FaEye /></button>
+                <button className='text-yellow-600 px-1' onClick={() => handleOpenEditModal(property)}><FaEdit /></button>
+                <button className='text-red-700 px-1' onClick={() => handleOpenDeleteModal(property)}><FaTrash /></button>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
+
+      
+        <Modal isVisible={isEditModalOpen} onClose={() => setIsEditModalOpen(false)}>
+          <h2 className="text-xl mb-4">Edit Property</h2>
+          <form>
+          <div className='grid grid-cols-2 gap-x-2'>
+    <div className="mb-2">
+      <input type="text" name="property_name" placeholder='Property Name' value={editPropertyData.property_name} onChange={handleChange} required className="w-full text-sm px-4 py-2 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none focus:border-green-700"/>
+    </div>
+    <div className="mb-2">
+<select name="block_name" value={editPropertyData.block_name} onChange={handleChange} required className="w-full text-sm px-4 py-2 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none focus:border-green-700">
+  <option value="">Select Block</option>
+  {blocks.map((block) => (
+    <option key={block.id} value={block.id}>{block.block_name}</option>  
+  ))}
+</select>
+</div>
+    <div className="mb-2">
+      <input type="text" name="building_name" placeholder='Building Name' value={editPropertyData.building_name} onChange={handleChange} required className="w-full text-sm px-4 py-2 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none focus:border-green-700"/>
+    </div>
+    <div className="mb-2">
+      <select name="property_type" value={editPropertyData.property_type} onChange={handleChange} required className="w-full text-sm px-4 py-2 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none focus:border-green-700">
+        <option value="">Select Property Type</option>
+        {propertyTypes.map((propertyType) => (
+    <option key={propertyType.pro_type_id} value={propertyType.pro_type_id}>{propertyType.property_number} - {propertyType.property_name}</option>  
+  ))}
+      </select>
+    </div>
+    <div className="mb-2">
+      <select name="unit_type" value={editPropertyData.unit_type} onChange={handleChange} required className="w-full text-sm px-4 py-2 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none focus:border-green-700">
+        <option value="">Select Unit Type</option>
+        {unitTypes.map((unitType) => (
+    <option key={unitType.unit_type_id} value={unitType.unit_type_id}>{unitType.unit_number} - {unitType.unit_name}</option>  
+  ))}
+      </select>
+    </div>
+    <div className="mb-2">
+    <select name="floor_number" value={editPropertyData.floor_number} onChange={handleChange} required className="w-full text-sm px-4 py-2 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none focus:border-green-700">
+        <option value="">Select Floor Number</option>       
+        <option value="1">1</option>  
+        <option value="2">2</option>  
+        <option value="3">3</option>  
+        <option value="4">4</option>  
+        <option value="5">5</option>  
+        <option value="6">6</option>  
+        <option value="7">7</option>  
+        <option value="8">8</option>  
+        <option value="9">9</option>  
+        <option value="10">10</option>  
+      </select>
+    </div>
+    <div className="mb-2">
+      <input type="number" name="number_of_bedrooms" placeholder='Number of Bedrooms' value={editPropertyData.number_of_bedrooms} onChange={handleChange} required className="w-full text-sm px-4 py-2 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none focus:border-green-700"/>
+    </div>
+    <div className="mb-2">
+      <input type="number" name="number_of_bathrooms" placeholder='Number of Bathrooms' value={editPropertyData.number_of_bathrooms} onChange={handleChange} required className="w-full text-sm px-4 py-2 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none focus:border-green-700"/>
+    </div>
+   
+   
+    <div className="mb-2">
+      <input type="number" name="number_of_halls" placeholder='Number of Halls' value={editPropertyData.number_of_halls} onChange={handleChange} required className="w-full text-sm px-4 py-2 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none focus:border-green-700"/>
+    </div>
+  
+    <div className="mb-2">
+      <input type="number" name="size_in_sqm" placeholder='Size (sqm)' value={editPropertyData.size_in_sqm} onChange={handleChange} required className="w-full text-sm px-4 py-2 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none focus:border-green-700"/>
+    </div>
+    <div className="mb-2">
+          <select name="balcony_or_patio" value={editPropertyData.balcony_or_patio} onChange={handleChange} className="w-full text-sm px-4 py-2 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none focus:border-green-700">
+            <option value="">Balcony/Patio</option>
+            <option value="Yes">Yes</option>
+            <option value="No">No</option>
+          </select>
+        </div>
+        <div className="mb-2">
+          <select name="parking_space" value={editPropertyData.parking_space} onChange={handleChange} className="w-full text-sm px-4 py-2 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none focus:border-green-700">
+            <option value="">Parking Space</option>
+            <option value="Yes">Yes</option>
+            <option value="No">No</option>
+          </select>
+        </div>
+        <div className="mb-2">
+          <input type="text" name="street_address" placeholder='Street Address' value={editPropertyData.street_address} onChange={handleChange} className="w-full text-sm px-4 py-2 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none focus:border-green-700" />
+        </div>
+        <div className="mb-2">
+          <input type="text" name="city" placeholder='City' value={editPropertyData.city} onChange={handleChange} className="w-full text-sm px-4 py-2 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none focus:border-green-700" />
+        </div>
+        <div className="mb-2">
+          <input type="text" name="country" placeholder='Country' value={editPropertyData.country} onChange={handleChange} className="w-full text-sm px-4 py-2 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none focus:border-green-700" />
+        </div>
+        <div className="mb-2">
+          <select name="area_type" value={editPropertyData.area_type} onChange={handleChange} className="w-full text-sm px-4 py-2 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none focus:border-green-700">
+            <option value="">Area Type</option>
+            <option value="SQFT">Square Feet (SQFT)</option>
+            <option value="MARLA">Marla</option>
+            <option value="KANAL">Kanal</option>
+          </select>
+        </div>
+        <div className="mb-2">
+          <input type="number" name="area_value" placeholder='Area Value' value={editPropertyData.area_value} onChange={handleChange} className="w-full text-sm px-4 py-2 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none focus:border-green-700" />
+        </div>
+        <div className="mb-2">
+          <input type="text" name="property_value" placeholder='Property Value' value={editPropertyData.property_value} onChange={handleChange} className="w-full text-sm px-4 py-2 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none focus:border-green-700" />
+        </div>
+        <div className="mb-2">
+
+          <select name="amenity_name" value={editPropertyData.amenity_name} onChange={handleChange} required className="w-full text-sm px-4 py-2 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none focus:border-green-700">
+        <option value="">Select Amenity</option>
+        {amenities.map((amenity) => (
+    <option key={amenity.amenity_id} value={amenity.amenity_id}>{amenity.amenity_name}</option>  
+  ))}
+      </select>
+        </div>
+    </div>
+            <button type="button" className="w-auto mt-2 bg-green-700 text-white px-5 py-2 rounded-sm hover:bg-green-600 transition-colors duration-300" onClick={handleEditProperty}>Save</button>
+          </form>
+        </Modal>
+    
+    
+        <Modal isVisible={isDeleteModalOpen} onClose={() => setIsDeleteModalOpen(false)}>
+          <h2 className="text-xl mb-4">Delete Property</h2>
+          <p>Are you sure you want to delete {selectedProperty?.property_name}?</p>
+          <button type="button" className="mt-4 bg-red-500 text-white px-4 py-2 rounded-sm" onClick={handleDeleteProperty}>Yes, Delete</button>
+          <button type="button" className="mt-4 ms-2 bg-green-600 text-white px-4 py-2 rounded-sm" onClick={() => setIsDeleteModalOpen(false)}>Cancel</button>
+        </Modal>
+   
+
+     
+        <Modal isVisible={isViewModalOpen} onClose={() => setIsViewModalOpen(false)}>
+          <h2 className="text-xl mb-4">View Property</h2>
+          <p><strong>Block Name:</strong> {selectedProperty?.block_name?.block_name}</p>
+          <p><strong>Building Name:</strong> {selectedProperty?.building_name}</p>          
+          <p><strong>Property Name:</strong> {selectedProperty?.property_name}</p>
+          <p><strong>Property Type:</strong> {selectedProperty?.property_type?.property_number} - {selectedProperty?.property_type?.property_name}</p>
+          <p><strong>Unit Type:</strong> {selectedProperty?.unit_type?.unit_number} - {selectedProperty?.unit_type?.unit_name}</p>
+          <p><strong>Floor Number:</strong> {selectedProperty?.floor_number}</p>
+          <p><strong>Bedrooms:</strong> {selectedProperty?.number_of_bedrooms}</p>
+          <p><strong>Bathrooms:</strong> {selectedProperty?.number_of_bathrooms}</p>
+          <p><strong>Parking Space:</strong> {selectedProperty?.parking_space}</p>
+          <p><strong>Balcony/Patio Size:</strong> {selectedProperty?.balcony_or_patio}</p>
+          <p><strong>Number of Halls:</strong> {selectedProperty?.number_of_halls}</p>
+          <p><strong>Street Address:</strong> {selectedProperty?.street_address}</p>
+          <p><strong>City:</strong> {selectedProperty?.city}</p>
+          <p><strong>Country:</strong> {selectedProperty?.country}</p>
+          <p><strong>Area Type:</strong> {selectedProperty?.area_type}</p>
+          <p><strong>Area Value:</strong> {selectedProperty?.area_value}</p>
+          <p><strong>Property Value:</strong> {selectedProperty?.property_value}</p>
+          <p><strong>Amenity:</strong> {selectedProperty?.amenity_name?.amenity_name}</p>
+          <p><strong>Size:</strong> {selectedProperty?.size_in_sqm} sqm</p>
+        </Modal>
+    
     </div>
   );
 };
 
-// Example property data
-const properties = [
-  { No: 1, Name: 'Sunset Villa', propertyType: 'House', owner: 'John Doe', location: 'Los Angeles, CA', status:'Available' },
-  { No: 2, Name: 'Sunset Villa', propertyType: 'House', owner: 'John Doe', location: 'Los Angeles, CA', status:'Available' },
-
-  // Add more properties here
-];
-
-export default function PropertyListPage() {
-  return (
-    <>
-      <PropertyList properties={properties} />
-    </>
-  );
-}
+export default PropertyList;

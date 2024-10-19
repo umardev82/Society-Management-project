@@ -1,6 +1,6 @@
 from rest_framework import viewsets
 from .models import Block_info ,Property_info,PropertyType,UnitType,Amenity
-from .serializers import Block_info_serlializer ,Property_info_serializer,Property_type_serializer,Unit_type_serializer,Amenity_serializer
+from .serializers import Block_info_serlializer ,Property_info_serializer,Property_info_serializer_for_display_data,Property_type_serializer,Unit_type_serializer,Amenity_serializer
 
 
 
@@ -22,11 +22,21 @@ class AmenityViewSet(viewsets.ModelViewSet):
     queryset = Amenity.objects.all()
     serializer_class=Amenity_serializer     
 
-
 class PropertyInfoViewSet(viewsets.ModelViewSet):
-    queryset=Property_info.objects.all()
+    queryset = Property_info.objects.all()
     serializer_class = Property_info_serializer
- 
+
+    def get_serializer_class(self):
+        if self.action in ['create', 'update', 'partial_update', 'destroy']:
+            # Use the flat serializer for write operations
+            return Property_info_serializer
+        else:
+            # Use the nested serializer for read operations
+            return Property_info_serializer_for_display_data
+
+
+
+
       
 
 
