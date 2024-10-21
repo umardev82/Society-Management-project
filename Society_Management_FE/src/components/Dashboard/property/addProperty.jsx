@@ -24,15 +24,19 @@ const AddProperty = () => {
     area_type: '',
     area_value: '',
     property_value: '',
+    status:'',
     amenity_name: '',
-    size_in_sqm: ''
+    size_in_sqm: '',
+    is_active:false,
+    document_attachment:'',
+    is_rented:0
   });
 
   const { blocks, fetchBlocks } = useBlock();
   const { amenities, fetchAmenities } = useAmenity();
   const { unitTypes, fetchUnitTypes} = useUnitType();
   const { propertyTypes, fetchPropertyTypes} = usePropertyType();
-  const { addProperty, successMessage, errorMessage, setSuccessMessage } = useProperty();
+  const {countries, cities, fetchCities, addProperty, successMessage, errorMessage, setSuccessMessage } = useProperty();
 
   useEffect(() => {
     fetchBlocks();
@@ -42,20 +46,46 @@ const AddProperty = () => {
   }, []);
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target;
     setPropertyData((prevData) => ({
       ...prevData,
-      [name]: value,
+      [name]: type === 'checkbox' ? checked : value,
     }));
+
+     // If country is selected, fetch cities for that country
+     if (name === 'country') {
+      fetchCities(value);
+    }
   };
+
+  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const selectedUnitType = unitTypes.find(
-      (unitType) => unitType.unit_type_id === propertyData.unit_type
-    );
-    console.log(selectedUnitType);
-    const success = await addProperty(propertyData);
+    const formData = new FormData();
+
+       // Append non-file fields to FormData
+       Object.keys(propertyData).forEach((key) => {
+        if (key !== 'document_attachment' && key !== 'is_rented') {
+          formData.append(key, propertyData[key]);
+        }
+      });
+  
+      // Append the document_attachment (file) to FormData if it exists
+      if (propertyData.document_attachment) {
+        formData.append('document_attachment', propertyData.document_attachment);
+      }
+  
+   // Handle is_rented as 1 or 0 and append it to FormData
+
+  formData.append('is_rented', propertyData.is_rented ? 'True' : 'False');
+   
+  
+      // Submit the form data to the backend
+      const success = await addProperty(formData);
+
+
+   
     if (success) {
       setSuccessMessage('Property added successfully!');
       setPropertyData({
@@ -76,8 +106,12 @@ const AddProperty = () => {
         area_type: '',
         area_value: '',
         property_value: '',
+        status:'',
         amenity_name: '',
-        size_in_sqm: ''
+        size_in_sqm: '',
+        is_active:false,
+        document_attachment:'',
+        is_rented:0
       });
     }
   };
@@ -103,7 +137,7 @@ const AddProperty = () => {
       <select name="property_type" value={propertyData.property_type} onChange={handleChange} required className="w-full text-sm px-4 py-2 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none focus:border-green-700">
         <option value="">Select Property Type</option>
         {propertyTypes.map((propertyType) => (
-    <option key={propertyType.pro_type_id} value={propertyType.pro_type_id}>{propertyType.property_number} - {propertyType.property_name}</option>  
+    <option key={propertyType.pro_type_id} value={propertyType.pro_type_id}>{propertyType.property_number} - {propertyType.property_name} ( joint: {propertyType.joint_number} )</option>  
   ))}
       </select>
     </div>
@@ -163,11 +197,37 @@ const AddProperty = () => {
           <input type="text" name="street_address" placeholder='Street Address' value={propertyData.street_address} onChange={handleChange} className="w-full text-sm px-4 py-2 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none focus:border-green-700" />
         </div>
         <div className="mb-2">
-          <input type="text" name="city" placeholder='City' value={propertyData.city} onChange={handleChange} className="w-full text-sm px-4 py-2 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none focus:border-green-700" />
-        </div>
-        <div className="mb-2">
-          <input type="text" name="country" placeholder='Country' value={propertyData.country} onChange={handleChange} className="w-full text-sm px-4 py-2 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none focus:border-green-700" />
-        </div>
+        <select
+          name="country"
+          value={propertyData.country}
+          onChange={handleChange}
+          required
+          className="w-full text-sm px-4 py-2 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none focus:border-green-700"
+        >
+          <option value="">Select Country</option>
+          {countries.map((country) => (
+            <option key={country.iso2} value={country.country}>
+              {country.country}
+            </option>
+          ))}
+        </select>
+      </div>
+      <div className="mb-2">
+        <select
+          name="city"
+          value={propertyData.city}
+          onChange={handleChange}
+          required
+          className="w-full text-sm px-4 py-2 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none focus:border-green-700"
+        >
+          <option value="">Select City</option>
+          {cities.map((city, index) => (
+            <option key={index} value={city}>
+              {city}
+            </option>
+          ))}
+        </select>
+      </div>
         <div className="mb-2">
           <select name="area_type" value={propertyData.area_type} onChange={handleChange} className="w-full text-sm px-4 py-2 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none focus:border-green-700">
             <option value="">Area Type</option>
@@ -182,6 +242,14 @@ const AddProperty = () => {
         <div className="mb-2">
           <input type="text" name="property_value" placeholder='Property Value' value={propertyData.property_value} onChange={handleChange} className="w-full text-sm px-4 py-2 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none focus:border-green-700" />
         </div>
+        <div className='mb-2'>
+        <select name="status" value={propertyData.status} onChange={handleChange} className="w-full text-sm px-4 py-2 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none focus:border-green-700">
+            <option value="">Select Status</option>
+            <option value="Available">Available</option>
+            <option value="Rented">Rented</option>
+            <option value="Maintenance Pending ">Maintenance Pending</option>
+          </select>
+        </div>
         <div className="mb-2">
 
           <select name="amenity_name" value={propertyData.amenity_name} onChange={handleChange} required className="w-full text-sm px-4 py-2 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none focus:border-green-700">
@@ -190,6 +258,76 @@ const AddProperty = () => {
     <option key={amenity.amenity_id} value={amenity.amenity_id}>{amenity.amenity_name}</option>  
   ))}
       </select>
+        </div>
+        <div className="flex flex-row items-center gap-5">
+  <span className="">Is Rented</span>
+  <div className="flex space-x-4">
+    <label className="flex items-center">
+      <input
+        type="radio"
+        name="is_rented"
+        value='True'// Send 1 for true
+        checked={propertyData.is_rented === 1}
+        onChange={() =>
+          setPropertyData((prevData) => ({
+            ...prevData,
+            is_rented: 1, // Store true in state
+          }))
+        }
+        className="mr-2"
+      />
+      Yes
+    </label>
+
+    <label className="flex items-center">
+      <input
+        type="radio"
+        name="is_rented"
+        value='False' // Send 0 for false
+        checked={propertyData.is_rented === 0}
+        onChange={() =>
+          setPropertyData((prevData) => ({
+            ...prevData,
+            is_rented: 0, // Store false in state
+          }))
+        }
+        className="mr-2"
+      />
+      No
+    </label>
+  </div>
+</div>
+
+        <div className="flex items-center mb-2">
+  <input
+    type="checkbox"
+    name="is_active"
+    checked={propertyData.is_active === 'true'}
+    onChange={(e) =>
+      setPropertyData((prevData) => ({
+        ...prevData,
+        is_active: e.target.checked ? 'true' : 'false',
+      }))
+    }
+    className="h-4 w-4 text-green-600 focus:ring-0 border-gray-300 rounded"
+  />
+  <label className="ml-2 text-sm text-gray-600">Is Active</label>
+</div>
+
+        <div className="mb-2">
+          <input
+            type="file"
+            id="document_attachment"
+            name="document_attachment"
+            onChange={(e) =>
+              setPropertyData({
+                ...propertyData,
+                document_attachment: e.target.files[0],
+              })
+            }
+            className="mt-1 text-sm px-4 py-2 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none focus:border-green-700"
+            accept=".pdf,.doc,.docx,.jpg,.png"
+          />
         </div>
     </div>
     <button type="submit"  className="w-auto mt-2 bg-green-700 text-white px-5 py-2 rounded-sm hover:bg-green-600 transition-colors duration-300">Add Property</button>

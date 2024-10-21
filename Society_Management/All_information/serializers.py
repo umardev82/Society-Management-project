@@ -37,28 +37,7 @@ class Property_info_serializer_for_display_data(serializers.ModelSerializer):
     
     class Meta:
         model = Property_info
-        fields = [
-            'property_id',
-            'block_name',
-            'building_name',
-            'property_name',
-            'property_type',
-            'unit_type',
-            'floor_number',
-            'number_of_bedrooms',
-            'number_of_bathrooms',
-            'balcony_or_patio',
-            'parking_space',
-            'number_of_halls',
-            'street_address',
-            'city',
-            'country',
-            'area_type',
-            'area_value',
-            'property_value',
-            'amenity_name',
-            'size_in_sqm',
-        ]
+        fields = '__all__' 
          
         
         
@@ -107,22 +86,7 @@ class Owner_display_info_Serializer(serializers.ModelSerializer):
 
     class Meta:
         model = Owner
-        fields = [
-            'owner_id',
-            'owner_name',
-            'owner_guardian_name',
-            'owner_profile_picture',
-            'owner_phone_number',
-            'password',
-            'owner_email',
-            'owner_membership_number',
-            'owner_cnic',
-            'owner_address',
-            'owner_country',
-             'owner_city',
-            'document_attachment',
-            'properties',  # Include properties field for owner
-        ]
+        fields = '__all__' 
 
    
   
