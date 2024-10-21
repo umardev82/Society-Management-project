@@ -1,6 +1,6 @@
 
 from rest_framework import serializers
-from .models import Block_info,Property_info,PropertyType,UnitType,Amenity,Service,Owner, OwnerProperty
+from .models import Block_info,Property_info,PropertyType, Tenant,UnitType,Amenity,Service,Owner, OwnerProperty
 
 
 class Block_info_serlializer(serializers.ModelSerializer):
@@ -37,29 +37,7 @@ class Property_info_serializer_for_display_data(serializers.ModelSerializer):
     
     class Meta:
         model = Property_info
-        fields = [
-            'property_id',
-            'block_name',
-            'building_name',
-            'property_name',
-            'property_type',
-            'unit_type',
-            'floor_number',
-            'number_of_bedrooms',
-            'number_of_bathrooms',
-            'balcony_or_patio',
-            'parking_space',
-            'number_of_halls',
-            'street_address',
-            'city',
-            'country',
-            'area_type',
-            'area_value',
-            'property_value',
-            'amenity_name',
-            'size_in_sqm',
-        ]
-         
+        fields = '__all__'  
         
         
 class Property_info_serializer(serializers.ModelSerializer):
@@ -107,22 +85,7 @@ class Owner_display_info_Serializer(serializers.ModelSerializer):
 
     class Meta:
         model = Owner
-        fields = [
-            'owner_id',
-            'owner_name',
-            'owner_guardian_name',
-            'owner_profile_picture',
-            'owner_phone_number',
-            'password',
-            'owner_email',
-            'owner_membership_number',
-            'owner_cnic',
-            'owner_address',
-            'owner_country',
-             'owner_city',
-            'document_attachment',
-            'properties',  # Include properties field for owner
-        ]
+        fields = '__all__'  
 
    
   
@@ -183,3 +146,32 @@ class OwnerSerializer(serializers.ModelSerializer):
     #             all_cities.extend([(city, city) for city in cities])
     #         return all_cities
     #     return []
+    
+class Tenant_display_info_Serializer(serializers.ModelSerializer):
+    assign_property = Property_info_serializer_for_display_data()
+    class Meta:
+        model = Tenant
+        fields = '__all__'  
+class TenantSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Tenant
+        fields = [
+            'tenant_id',
+            'tenant_name',
+            'tenant_guardian_name',
+            'tenant_profile_picture',
+            'tenant_phone_number',
+            'password',
+            'tenant_email',
+            'tenant_cnic',
+            'tenant_address',
+            'tenant_city',
+            'tenant_country',
+            'starting_date',
+            'ending_agreement_date',
+            'monthly_rent',
+            'security_payment',
+            'other_monthly_utility_charges',
+            'assign_property',
+            'agreement_attachment',
+        ]    

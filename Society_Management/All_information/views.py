@@ -1,6 +1,6 @@
 from rest_framework import viewsets
-from .models import Block_info ,Property_info,PropertyType,UnitType,Amenity,Service,Owner, OwnerProperty
-from .serializers import Block_info_serlializer, Owner_display_info_Serializer ,Property_info_serializer, Property_info_serializer_for_display_data,Property_type_serializer,Unit_type_serializer,Amenity_serializer,ServiceSerializer,OwnerPropertySerializer,OwnerSerializer
+from .models import Block_info ,Property_info,PropertyType,UnitType,Amenity,Service,Owner, OwnerProperty,Tenant
+from .serializers import Block_info_serlializer, Owner_display_info_Serializer ,Property_info_serializer, Property_info_serializer_for_display_data,Property_type_serializer, Tenant_display_info_Serializer,Unit_type_serializer,Amenity_serializer,ServiceSerializer,OwnerPropertySerializer,OwnerSerializer,TenantSerializer
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.response import Response
@@ -86,7 +86,15 @@ class OwnerViewSet(viewsets.ModelViewSet):
     #         return Response(serializer.data, status=status.HTTP_201_CREATED)
     #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
   
+class TenantViewSet(viewsets.ModelViewSet):
+    queryset = Tenant.objects.all()
+    serializer_class = TenantSerializer
 
+    def get_serializer_class(self):
+        if self.action in ['create', 'update', 'partial_update', 'destroy']:
+            return TenantSerializer
+        else:
+            return Tenant_display_info_Serializer
 
 class OwnerPropertyViewSet(viewsets.ModelViewSet):
     queryset = OwnerProperty.objects.all()
