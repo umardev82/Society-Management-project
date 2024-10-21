@@ -128,6 +128,41 @@ class Owner(models.Model):
 
     def __str__(self):
         return self.owner_name
+    
+    
+class Tenant(models.Model):
+    tenant_id = models.AutoField(primary_key=True)
+    tenant_name = models.CharField(max_length=255)
+    tenant_guardian_name = models.CharField(max_length=200, null=True, blank=True)
+    tenant_profile_picture = models.ImageField(upload_to='tenant_profiles/', null=True, blank=True)
+    tenant_phone_number = models.CharField(max_length=15, unique=True)
+    password = models.CharField(max_length=255)
+    tenant_email = models.EmailField(unique=True)
+    tenant_cnic = models.CharField(max_length=15)
+    tenant_address = models.TextField()
+    tenant_country = models.CharField(max_length=100)
+    tenant_city = models.CharField(max_length=100)
+    starting_date = models.DateField()
+    ending_agreement_date = models.DateField()
+    monthly_rent = models.DecimalField(max_digits=10, decimal_places=2)
+    security_payment = models.DecimalField(max_digits=10, decimal_places=2)
+    other_monthly_utility_charges = models.DecimalField(max_digits=10, decimal_places=2)
+    assign_property = models.ForeignKey('Property_info', on_delete=models.CASCADE)
+    agreement_attachment = models.FileField(upload_to='agreements/', null=True, blank=True)
+
+    def __str__(self):
+        return self.tenant_name
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
  
  # add OwnerProperty   model 
 class OwnerProperty(models.Model):
