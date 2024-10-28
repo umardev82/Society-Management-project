@@ -1,27 +1,29 @@
 import React, { useEffect, useState } from 'react';
-import useOwner from '../../../hooks/useOwner';
-import useProperty from '../../../hooks/useProperty';
+import useTenant from '../../../hooks/useTenant';
 
-const AddOwner = () => {
-  const [ownerData, setOwnerData] = useState({
-    owner_name: '',
-    owner_guardian_name: '',
-    owner_profile_picture: '',
-    owner_phone_number: '',
-    password: '',
-    owner_email: '',
-    owner_membership_number: '',
-    owner_cnic: '',
-    owner_address: '',
-    owner_country: '',
-    owner_city: '',
-    document_attachment: '',
-    properties: [], 
+const AddTenant = () => {
+  const [tenantData, setTenantData] = useState({
+    tenant_name: '',
+        tenant_guardian_name: '',
+        tenant_profile_picture: '',
+        tenant_phone_number: '',
+        password: '',
+        tenant_email: '',
+        tenant_cnic: '',
+        tenant_address: '',
+        tenant_country: '',
+        tenant_city: '',
+        starting_date: '',
+        ending_agreement_date: '',
+        monthly_rent: '',
+        security_payment: '',
+        other_monthly_utility_charges: '',
+        assign_property: '',
+        agreement_attachment: '',    
   });
 
-  const { countries, cities, fetchCities, fetchOwners, addOwner, successMessage, errorMessage } = useOwner();
+  const { countries, cities, fetchCities, fetchTenants, addTenant, successMessage, errorMessage } = useTenant();
   const [properties, setProperties] = useState([]);
-  const [selectedProperty, setSelectedProperty] = useState('');
 
   useEffect(() => {
     const fetchProperties = async () => {
@@ -31,17 +33,17 @@ const AddOwner = () => {
     };
 
     fetchProperties();
-    fetchOwners();
+    fetchTenants();
   }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setOwnerData((prevData) => ({
+    setTenantData((prevData) => ({
       ...prevData,
       [name]: value,
     }));
 
-    if (name === 'owner_country') {
+    if (name === 'tenant_country') {
       fetchCities(value);
     }
   };
@@ -49,57 +51,41 @@ const AddOwner = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData();
-
-    // Append all other fields to formData
-    Object.keys(ownerData).forEach((key) => {
+    Object.keys(tenantData).forEach((key) => {
       if (key !== 'document_attachment') {
-        if (Array.isArray(ownerData[key])) {
-          // Append each property ID individually
-          ownerData[key].forEach((propertyId) => {
-            formData.append('properties', propertyId);
-          });
-        } else {
-          formData.append(key, ownerData[key]);
-        }
+        formData.append(key, tenantData[key]);
       }
     });
-
-
-    if (ownerData.document_attachment) {
-      formData.append('document_attachment', ownerData.document_attachment);
+    
+    if (tenantData.document_attachment) {
+      formData.append('document_attachment', tenantData.document_attachment);
     }
 
-    const success = await addOwner(formData);
+    const success = await addTenant(formData);
     
     if (success) {
-      successMessage('Owner added successfully!');
-      setOwnerData({
-        owner_name: '',
-        owner_guardian_name: '',
-        owner_profile_picture: '',
-        owner_phone_number: '',
+      successMessage('Tenant added successfully!');
+      setTenantData({
+        tenant_name: '',
+        tenant_guardian_name: '',
+        tenant_profile_picture: '',
+        tenant_phone_number: '',
         password: '',
-        owner_email: '',
-        owner_membership_number: '',
-        owner_cnic: '',
-        owner_address: '',
-        owner_country: '',
-        owner_city: '',
-        document_attachment: '',
-        properties: [],
+        tenant_email: '',
+        tenant_cnic: '',
+        tenant_address: '',
+        tenant_country: '',
+        tenant_city: '',
+        starting_date: '',
+        ending_agreement_date: '',
+        monthly_rent: '',
+        security_payment: '',
+        other_monthly_utility_charges: '',
+        assign_property: '',
+        agreement_attachment: '',        
       });
-      setSelectedProperty(''); // Reset the selected property
+     
     }
-  };
-
-  const handlePropertyChange = (e) => {
-    const selectedOptions = Array.from(e.target.selectedOptions);
-    const selectedPropertyIds = selectedOptions.map((option) => parseInt(option.value, 10));
-
-    setOwnerData((prevData) => ({
-      ...prevData,
-      properties: selectedPropertyIds, // Update the properties with selected IDs
-    }));
   };
 
   return (
@@ -109,10 +95,10 @@ const AddOwner = () => {
           <div className="mb-4">
             <input
               type="text"
-              id="owner_name"
-              name="owner_name"
-              placeholder="Owner Name"
-              value={ownerData.owner_name}
+              id="tenant_name"
+              name="tenant_name"
+              placeholder="Tenant Name"
+              value={tenantData.tenant_name}
               onChange={handleChange}
               required
               className="w-full text-sm px-4 py-2 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none focus:border-green-700"
@@ -121,10 +107,10 @@ const AddOwner = () => {
           <div className="mb-4">
             <input
               type="text"
-              id="owner_guardian_name"
-              name="owner_guardian_name"
-              placeholder="Owner Guardian Name"
-              value={ownerData.owner_guardian_name}
+              id="tenant_guardian_name"
+              name="tenant_guardian_name"
+              placeholder="Tenant Guardian Name"
+              value={tenantData.tenant_guardian_name}
               onChange={handleChange}
               required
               className="w-full text-sm px-4 py-2 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none focus:border-green-700"
@@ -133,12 +119,12 @@ const AddOwner = () => {
           <div className='mb-4'>
             <input
               type="file"
-              id="owner_profile_picture"
-              name="owner_profile_picture"
+              id="tenant_profile_picture"
+              name="tenant_profile_picture"
               onChange={(e) =>
-                setOwnerData({
-                  ...ownerData,
-                  owner_profile_picture: e.target.files[0],
+                setTenantData({
+                  ...tenantData,
+                  tenant_profile_picture: e.target.files[0],
                 })
               }
               className="text-sm px-4 py-2 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none focus:border-green-700"
@@ -148,10 +134,10 @@ const AddOwner = () => {
           <div className="mb-4">
             <input
               type="tel"
-              id="owner_phone_number"
-              name="owner_phone_number"
-              placeholder="Owner Phone Number"
-              value={ownerData.owner_phone_number}
+              id="tenant_phone_number"
+              name="tenant_phone_number"
+              placeholder="Tenant Phone Number"
+              value={tenantData.tenant_phone_number}
               onChange={handleChange}
               required
               className="w-full text-sm px-4 py-2 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none focus:border-green-700"
@@ -163,7 +149,7 @@ const AddOwner = () => {
               id="password"
               name="password"
               placeholder="Password"
-              value={ownerData.password}
+              value={tenantData.password}
               onChange={handleChange}
               required
               className="w-full text-sm px-4 py-2 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none focus:border-green-700"
@@ -172,10 +158,10 @@ const AddOwner = () => {
           <div className="mb-4">
             <input
               type="email"
-              id="owner_email"
-              name="owner_email"
-              placeholder="Owner Email"
-              value={ownerData.owner_email}
+              id="tenant_email"
+              name="tenant_email"
+              placeholder="Tenant Email"
+              value={tenantData.tenant_email}
               onChange={handleChange}
               required
               className="w-full text-sm px-4 py-2 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none focus:border-green-700"
@@ -184,10 +170,10 @@ const AddOwner = () => {
           <div className="mb-4">
             <input
               type="text"
-              id="owner_membership_number"
-              name="owner_membership_number"
-              placeholder="Owner Membership Number"
-              value={ownerData.owner_membership_number}
+              id="tenant_cnic"
+              name="tenant_cnic"
+              placeholder="Tenant CNIC"
+              value={tenantData.tenant_cnic}
               onChange={handleChange}
               required
               className="w-full text-sm px-4 py-2 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none focus:border-green-700"
@@ -196,22 +182,10 @@ const AddOwner = () => {
           <div className="mb-4">
             <input
               type="text"
-              id="owner_cnic"
-              name="owner_cnic"
-              placeholder="Owner CNIC"
-              value={ownerData.owner_cnic}
-              onChange={handleChange}
-              required
-              className="w-full text-sm px-4 py-2 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none focus:border-green-700"
-            />
-          </div>
-          <div className="mb-4">
-            <input
-              type="text"
-              id="owner_address"
-              name="owner_address"
-              placeholder="Owner Address"
-              value={ownerData.owner_address}
+              id="tenant_address"
+              name="tenant_address"
+              placeholder="Tenant Address"
+              value={tenantData.tenant_address}
               onChange={handleChange}
               required
               className="w-full text-sm px-4 py-2 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none focus:border-green-700"
@@ -219,8 +193,8 @@ const AddOwner = () => {
           </div>
           <div className="mb-2">
             <select
-              name="owner_country"
-              value={ownerData.owner_country}
+              name="tenant_country"
+              value={tenantData.tenant_country}
               onChange={handleChange}
               required
               className="w-full text-sm px-4 py-2 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none focus:border-green-700"
@@ -233,10 +207,10 @@ const AddOwner = () => {
               ))}
             </select>
           </div>
-          <div className="mb-2">
+          <div className="mb-4">
             <select
-              name="owner_city"
-              value={ownerData.owner_city}
+              name="tenant_city"
+              value={tenantData.tenant_city}
               onChange={handleChange}
               required
               className="w-full text-sm px-4 py-2 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none focus:border-green-700"
@@ -252,12 +226,12 @@ const AddOwner = () => {
           <div className="mb-4">
             <input
               type="file"
-              id="document_attachment"
-              name="document_attachment"
+              id="agreement_attachment"
+              name="agreement_attachment"
               onChange={(e) =>
-                setOwnerData({
-                  ...ownerData,
-                  document_attachment: e.target.files[0],
+                setTenantData({
+                  ...tenantData,
+                  agreement_attachment: e.target.files[0],
                 })
               }
               className="mt-1 text-sm px-4 py-2 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none focus:border-green-700"
@@ -265,12 +239,12 @@ const AddOwner = () => {
             />
           </div>
           <div className="mb-4">
-          <select
-              multiple
+            <select
               className='w-full text-sm px-4 py-2 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none focus:border-green-700'
-              id="property"
-              value={ownerData.properties}
-              onChange={handlePropertyChange}
+              id="assign_property"
+              name="assign_property"
+              value={tenantData.assign_property}
+              onChange={handleChange}
             >
               <option value="">Select Property</option>
               {properties.map((property) => (
@@ -279,18 +253,77 @@ const AddOwner = () => {
                 </option>
               ))}
             </select>
+          </div>
 
+          <div className="mb-4">
+            <input
+              type="date"
+              id="starting_date"
+              name="starting_date"
+              placeholder="Starting Date"
+              value={tenantData.starting_date}
+              onChange={handleChange}
+              required
+              className="w-full text-sm px-4 py-2 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none focus:border-green-700"
+            />
+          </div>
+          <div className="mb-4">
+            <input
+              type="date"
+              id="ending_agreement_date"
+              name="ending_agreement_date"
+              placeholder="Ending Agreement Date"
+              value={tenantData.ending_agreement_date}
+              onChange={handleChange}
+              required
+              className="w-full text-sm px-4 py-2 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none focus:border-green-700"
+            />
+          </div>
+          <div className="mb-4">
+            <input
+              type="number"
+              id="monthly_rent"
+              name="monthly_rent"
+              placeholder="Monthly Rent"
+              value={tenantData.monthly_rent}
+              onChange={handleChange}
+              required
+              className="w-full text-sm px-4 py-2 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none focus:border-green-700"
+            />
+          </div>
+          <div className="mb-4">
+            <input
+              type="number"
+              id="security_payment"
+              name="security_payment"
+              placeholder="Security Payment"
+              value={tenantData.security_payment}
+              onChange={handleChange}
+              required
+              className="w-full text-sm px-4 py-2 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none focus:border-green-700"
+            />
+          </div>
+          <div className="mb-4">
+            <input
+              type="number"
+              id="other_monthly_utility_charges"
+              name="other_monthly_utility_charges"
+              placeholder="Other Monthly Utility Charges"
+              value={tenantData.other_monthly_utility_charges}
+              onChange={handleChange}
+              className="w-full text-sm px-4 py-2 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none focus:border-green-700"
+            />
           </div>
         </div>
         <button
           type="submit"
           className="w-auto bg-green-700 text-white px-5 py-2 rounded-sm hover:bg-green-600 transition-colors duration-300"
         >
-          Add Owner
+          Add Tenant
         </button>
       </form>
 
-        {/* Success Message */}
+       {/* Success Message */}
      {successMessage && (
       <div className="mt-4 text-green-600 text-sm">
         {successMessage}
@@ -303,9 +336,8 @@ const AddOwner = () => {
         {errorMessage}
       </div>
     )}
-
     </>
   );
 };
 
-export default AddOwner;
+export default AddTenant;

@@ -1,25 +1,22 @@
 import React, { useState } from 'react';
-import useBlock from '../../../hooks/useBlock';
+import useService from '../../../hooks/useService';
 import { useNavigate } from 'react-router-dom';
 
-const AddBlock = () => {
-  const [blockName, setBlockName] = useState('');
+const AddService = () => {
+  const [serviceName, setServiceName] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigate();
-  const { addBlock } = useBlock(); 
+  const { addService } = useService(); 
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const { success, message } = await addBlock(blockName);
+    const { success, message } = await addService(serviceName);
 
     if (success) {
       setSuccessMessage(message);    
-      setBlockName('');
-      // setTimeout(() => {
-      //   navigate('/all-blocks'); 
-      // }, 2000); 
+      setServiceName('');
     } else {
       setErrorMessage(message);
     }
@@ -31,11 +28,11 @@ const AddBlock = () => {
       <div className="mb-4">
         <input
           type="text"
-          id="block_name"
-          name="block_name"
-          placeholder="Block Name"
-          value={blockName}
-          onChange={(e) => setBlockName(e.target.value)}
+          id="service_name"
+          name="service_name"
+          placeholder="Service Name"
+          value={serviceName}
+          onChange={(e) => setServiceName(e.target.value)}
           required
           className="w-full text-sm px-4 py-2 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none focus:border-green-700"
         />
@@ -44,7 +41,7 @@ const AddBlock = () => {
         type="submit"
         className="w-auto bg-green-700 text-white px-5 py-2 rounded-sm hover:bg-green-600 transition-colors duration-300"
       >
-        Add New Block
+        Add New Service
       </button>
     </form>
      {/* Success Message */}
@@ -64,4 +61,4 @@ const AddBlock = () => {
   );
 };
 
-export default AddBlock;
+export default AddService;

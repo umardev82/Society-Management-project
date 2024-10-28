@@ -5,8 +5,9 @@ import { FiMenu, FiBell, FiUser } from "react-icons/fi";
 import { MdKeyboardDoubleArrowRight } from "react-icons/md";
 import { BsBank } from "react-icons/bs";
 import { TbLogout2 } from "react-icons/tb";
-import { FaCubes, FaCaretDown, FaCaretRight, FaRegClone } from "react-icons/fa";
+import { FaCubes, FaCaretDown, FaCaretRight, FaRegClone, FaUser, FaUsers } from "react-icons/fa";
 import { FaHouseFloodWaterCircleArrowRight, FaBuilding, FaBuildingColumns } from "react-icons/fa6";
+import { GrServices } from "react-icons/gr";
 import { IoMdClose } from "react-icons/io";
 import Dashboard from "./dashboard";
 import PropertyList from "./property/propertyList";
@@ -19,6 +20,12 @@ import AddUnitType from "./unitType/addUnitType";
 import UnitTypeList from "./unitType/unitTypeList";
 import AddPropertyType from "./propertyType/addPropertyType";
 import PropertyTypeList from "./propertyType/propertyTypeList";
+import OwnerList from "./owner/ownerList";
+import AddOwner from "./owner/addOwner";
+import AddTenant from "./tenant/addTenant";
+import TenantList from "./tenant/tenantList";
+import AddService from "./serviceInfo/addService";
+import ServiceList from "./serviceInfo/serviceList";
 
 const Main = () => {
   const [activeItem, setActiveItem] = useState("Dashboard");
@@ -69,6 +76,30 @@ const Main = () => {
         },
       ],
     },
+    {
+      name: "Owner",
+      icon: <FaUser />,
+      subItems: [
+        { name: "Owner List", icon: <MdKeyboardDoubleArrowRight />, component: <OwnerList /> },
+        { name: "Add Owner", icon: <MdKeyboardDoubleArrowRight />, component: <AddOwner /> },
+      ],
+    },
+    {
+      name: "Tenant",
+      icon: <FaUsers/>,
+      subItems: [
+         { name: "Add Tenant", icon: <MdKeyboardDoubleArrowRight/>, component: <AddTenant/>},
+         { name: "Tenant List", icon: <MdKeyboardDoubleArrowRight/>, component: <TenantList/>},
+      ],
+    },
+    {
+      name: "Service",
+      icon: <GrServices/>,
+      subItems: [
+         { name: "Add Service", icon: <MdKeyboardDoubleArrowRight/>, component: <AddService/>},
+         { name: "Service List", icon: <MdKeyboardDoubleArrowRight/>, component: <ServiceList/>},
+      ],
+    },
     { name: "Logout", icon: <TbLogout2 /> },
   ];
 
@@ -102,6 +133,18 @@ const Main = () => {
         return <AddPropertyType />;
       case "Property Type List":
         return <PropertyTypeList />;
+      case "Owner List":
+        return <OwnerList/>;
+      case "Add Owner":
+        return <AddOwner/>;
+      case "Add Tenant":
+        return <AddTenant/>;
+      case "Tenant List":
+        return <TenantList/>;
+      case "Add Service":
+        return <AddService/>;
+      case "Service List":
+        return <ServiceList/>;
       case "Logout":
         handleLogout();
         return null;

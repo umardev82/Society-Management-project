@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useState, useEffect } from "react";
+import API_BASE_URL from "../config";
 
 const usePropertyType = () => {
     const [propertyTypes, setPropertyTypes] = useState([]);
@@ -9,7 +10,7 @@ const usePropertyType = () => {
     // Add property type
     const addPropertyType = async (propertyName, propertyNumber, jointNumber) => {
         try {
-            const response = await axios.post('http://127.0.0.1:8000/property_type_info/', {
+            const response = await axios.post(`${API_BASE_URL}/property_type_info/`, {
                 property_name: propertyName,
                 property_number: propertyNumber,
                 joint_number:jointNumber,
@@ -37,7 +38,7 @@ const usePropertyType = () => {
     // Fetch property types
     const fetchPropertyTypes = async () => {
         try {
-            const response = await axios.get('http://127.0.0.1:8000/property_type_info/');
+            const response = await axios.get(`${API_BASE_URL}/property_type_info/`);
             setPropertyTypes(response.data);
         } catch (err) {
             setError(err);
@@ -54,7 +55,7 @@ const usePropertyType = () => {
 
     const editPropertyType = async (id, updatedPropertyName, updatedPropertyNumber, updatedJointNumber) => {
         try {
-            const response = await axios.put(`http://127.0.0.1:8000/property_type_info/${id}/`, {
+            const response = await axios.put(`${API_BASE_URL}/property_type_info/${id}/`, {
                 property_name: updatedPropertyName,
                 property_number: updatedPropertyNumber,
                 joint_number: updatedJointNumber,
@@ -94,7 +95,7 @@ const usePropertyType = () => {
     // Delete property type
     const deletePropertyType = async (id) => {
         try {
-            const response = await axios.delete(`http://127.0.0.1:8000/property_type_info/${id}/`);
+            const response = await axios.delete(`${API_BASE_URL}/property_type_info/${id}/`);
 
             if (response.status === 204) {
                 await fetchPropertyTypes();
