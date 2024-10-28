@@ -8,7 +8,7 @@ import Modal from '../modal';
 import { FaEdit, FaTrash, FaEye } from 'react-icons/fa';
 
 const PropertyList = () => {
-  const { properties, deleteProperty, editProperty, fetchProperties, loading, error } = useProperty();
+  const {countries, cities, fetchCities, properties, deleteProperty, editProperty, fetchProperties, loading, error } = useProperty();
   const { blocks, fetchBlocks } = useBlock();
   const { amenities, fetchAmenities } = useAmenity();
   const { unitTypes, fetchUnitTypes} = useUnitType();
@@ -55,8 +55,12 @@ const PropertyList = () => {
       area_type: property.area_type,
       area_value: property.area_value,
       property_value: property.property_value,
+      status:property.status,
       amenity_name: property.amenity_name?.amenity_id,
       size_in_sqm: property.size_in_sqm,
+      is_active:property.is_active,
+      document_attachment:property.document_attachment,
+      is_rented:property.is_rented,
     });
     setIsEditModalOpen(true);
   };
@@ -91,12 +95,19 @@ const PropertyList = () => {
   };
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target;
     setEditPropertyData((prevData) => ({
       ...prevData,
-      [name]: value,
+      [name]: type === 'checkbox' ? checked: value,
     }));
+    if (name === 'country') {
+      fetchCities(value);
+    }
   };
+
+
+  
+
 
   return (
     <div className="py-5 overflow-x-scroll">
@@ -125,6 +136,9 @@ const PropertyList = () => {
             <th className="border text-start px-4 whitespace-nowrap py-2">Property Value</th>
             <th className="border text-start px-4 whitespace-nowrap py-2">Amenity Name</th>
             <th className="border text-start px-4 whitespace-nowrap py-2">Size in SQM</th>
+            <th className="border text-start px-4 whitespace-nowrap py-2">Status</th>
+            <th className="border text-start px-4 whitespace-nowrap py-2">Is Active</th>
+            <th className="border text-start px-4 whitespace-nowrap py-2">Is Rented</th>
             <th className="border text-start px-4 whitespace-nowrap py-2">Actions</th>
           </tr>
         </thead>
@@ -153,6 +167,10 @@ const PropertyList = () => {
               <td className="border px-4 whitespace-nowrap py-2 ">{property.property_value}</td>
               <td className="border px-4 whitespace-nowrap py-2 ">{property.amenity_name?.amenity_name}</td>
               <td className="border px-4 whitespace-nowrap py-2 ">{property.size_in_sqm}</td>
+              <td className="border px-4 whitespace-nowrap py-2 ">{property.status}</td>
+              <td className="border px-4 whitespace-nowrap py-2 ">{property.is_active ? 'Yes' : 'No'}</td>
+              <td className="border px-4 whitespace-nowrap py-2 ">{property.is_rented ? 'Yes' : 'No'}</td>
+
               <td className="border px-4 whitespace-nowrap py-2 ">
                 <button className='text-green-700 px-1' onClick={() => handleOpenViewModal(property)}><FaEye /></button>
                 <button className='text-yellow-600 px-1' onClick={() => handleOpenEditModal(property)}><FaEdit /></button>
@@ -245,12 +263,38 @@ const PropertyList = () => {
         <div className="mb-2">
           <input type="text" name="street_address" placeholder='Street Address' value={editPropertyData.street_address} onChange={handleChange} className="w-full text-sm px-4 py-2 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none focus:border-green-700" />
         </div>
+           
         <div className="mb-2">
-          <input type="text" name="city" placeholder='City' value={editPropertyData.city} onChange={handleChange} className="w-full text-sm px-4 py-2 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none focus:border-green-700" />
-        </div>
-        <div className="mb-2">
-          <input type="text" name="country" placeholder='Country' value={editPropertyData.country} onChange={handleChange} className="w-full text-sm px-4 py-2 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none focus:border-green-700" />
-        </div>
+        <select
+          name="country"
+          value={editPropertyData.country}
+          onChange={handleChange}
+          required
+          className="w-full text-sm px-4 py-2 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none focus:border-green-700"
+        >
+          <option value="">Select Country</option>
+          {countries.map((country) => (
+            <option key={country.iso2} value={country.country}>
+              {country.country}
+            </option>
+          ))}
+        </select>
+      </div>
+      <div className="mb-2">
+  <select
+    name="city"
+    value={editPropertyData.city}
+    onChange={handleChange}
+    required
+    className="w-full text-sm px-4 py-2 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none focus:border-green-700"
+  >
+    <option value="">Select City</option>
+    {cities.map((city, index) => (
+      <option key={index} value={city}>{city}</option>
+    ))}
+  </select>
+</div>
+
         <div className="mb-2">
           <select name="area_type" value={editPropertyData.area_type} onChange={handleChange} className="w-full text-sm px-4 py-2 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none focus:border-green-700">
             <option value="">Area Type</option>
@@ -265,6 +309,14 @@ const PropertyList = () => {
         <div className="mb-2">
           <input type="text" name="property_value" placeholder='Property Value' value={editPropertyData.property_value} onChange={handleChange} className="w-full text-sm px-4 py-2 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none focus:border-green-700" />
         </div>
+        <div className='mb-2'>
+        <select name="status" value={editPropertyData.status} onChange={handleChange} className="w-full text-sm px-4 py-2 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none focus:border-green-700">
+            <option value="">Select Status</option>
+            <option value="Available">Available</option>
+            <option value="Rented">Rented</option>
+            <option value="Maintenance Pending ">Maintenance Pending</option>
+          </select>
+        </div>
         <div className="mb-2">
 
           <select name="amenity_name" value={editPropertyData.amenity_name} onChange={handleChange} required className="w-full text-sm px-4 py-2 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none focus:border-green-700">
@@ -274,6 +326,46 @@ const PropertyList = () => {
   ))}
       </select>
         </div>
+        <div className="mb-2">
+  <label className="block text-sm mb-1">Is Rented</label>
+  <div className="flex items-center">
+    <label className="mr-4">
+      <input
+        type="radio"
+        name="is_rented"
+        value={true}
+        checked={editPropertyData.is_rented === true}
+        onChange={() => handleChange({ target: { name: 'is_rented', value: true } })}
+        className="mr-2"
+      />
+      Yes
+    </label>
+    <label>
+      <input
+        type="radio"
+        name="is_rented"
+        value={false}
+        checked={editPropertyData.is_rented === false}
+        onChange={() => handleChange({ target: { name: 'is_rented', value: false } })}
+        className="mr-2"
+      />
+      No
+    </label>
+  </div>
+</div>
+
+ 
+<div className=" flex items-center mb-2">
+  <label>
+    <input
+      type="checkbox"
+      name="is_active"
+      checked={editPropertyData.is_active || false}
+      onChange={handleChange}
+    /> Is Active
+  </label>
+</div>
+
     </div>
             <button type="button" className="w-auto mt-2 bg-green-700 text-white px-5 py-2 rounded-sm hover:bg-green-600 transition-colors duration-300" onClick={handleEditProperty}>Save</button>
           </form>
@@ -308,8 +400,11 @@ const PropertyList = () => {
           <p><strong>Area Type:</strong> {selectedProperty?.area_type}</p>
           <p><strong>Area Value:</strong> {selectedProperty?.area_value}</p>
           <p><strong>Property Value:</strong> {selectedProperty?.property_value}</p>
+          <p><strong>Status:</strong> {selectedProperty?.status}</p>
           <p><strong>Amenity:</strong> {selectedProperty?.amenity_name?.amenity_name}</p>
           <p><strong>Size:</strong> {selectedProperty?.size_in_sqm} sqm</p>
+          <p><strong>Is Active:</strong> {selectedProperty?.is_active ? 'Yes' : 'No'} </p>
+          <p><strong>Is Rented:</strong> {selectedProperty?.is_rented ? 'Yes' : 'No'} </p>         
         </Modal>
     
     </div>

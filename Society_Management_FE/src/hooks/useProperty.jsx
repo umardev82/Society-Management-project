@@ -3,6 +3,8 @@ import axios from 'axios';
 
 const useProperty = () => {
   const [properties, setProperties] = useState([]);
+  const [countries, setCountries] = useState([]);
+  const [cities, setCities] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [successMessage, setSuccessMessage] = useState('');
@@ -19,9 +21,29 @@ const useProperty = () => {
       setLoading(false);
     }
   };
+    // Fetch countries (GET)
+    const fetchCountries = async () => {
+      try {
+        const response = await axios.get('https://countriesnow.space/api/v0.1/countries');
+        setCountries(response.data.data);  // Data structure based on API response
+      } catch (error) {
+        setError(error);
+      }
+    };
+  
+    // Fetch cities based on selected country
+    const fetchCities = async (country) => {
+      try {
+        const response = await axios.post('https://countriesnow.space/api/v0.1/countries/cities', { country });
+        setCities(response.data.data); // Data structure based on API response
+      } catch (error) {
+        setError(error);
+      }
+    };
 
   useEffect(() => {
     fetchProperties();
+    fetchCountries();
   }, []);
 
   // Add property (POST)
@@ -66,9 +88,12 @@ const useProperty = () => {
 
   return {
     properties,
+    countries,
+    cities,
     loading,
     error,
     addProperty,
+    fetchCities,
     editProperty,
     deleteProperty,
     fetchProperties,
