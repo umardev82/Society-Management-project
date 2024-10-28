@@ -14,17 +14,11 @@ class Block_info(models.Model):
 # add  PropertyType Model
 class PropertyType(models.Model):
     pro_type_id = models.AutoField(primary_key=True)
-    property_number = models.IntegerField(unique=True)  # Ensures uniqueness
     property_name = models.CharField(max_length=100)
-    joint_number = models.IntegerField(
-        validators=[MinValueValidator(0), MaxValueValidator(4)],
-        blank=True,
-        null=True,
-        help_text="Select the joint number (0, 1, 2, 3, 4) or leave empty if not applicable"
-    )
+
 
     def __str__(self):
-        return f"{self.property_number} - {self.property_name} (Joint: {self.joint_number})"
+        return f" {self.property_name} "
    
     
     # add  UnitType Model
@@ -45,6 +39,19 @@ class Amenity(models.Model):
 
     def __str__(self):
         return self.amenity_name 
+    
+class AreaType(models.Model):
+    area_type_id = models.AutoField(primary_key=True)
+    AREA_TYPE_CHOICES = [
+        ('SQFT', 'Square Feet (SQFT)'),
+        ('MARLA', 'Marla'),
+        ('KANAL', 'Kanal'),
+    ]
+    area_type_name = models.CharField(max_length=10, choices=AREA_TYPE_CHOICES,null=True, blank=True)
+    area_value = models.DecimalField(max_digits=10, decimal_places=2)
+    
+    def __str__(self):
+       return f"{self.area_type_name} - {self.area_value}"
        
 class Service(models.Model):
     service_id = models.AutoField(primary_key=True)
@@ -62,6 +69,14 @@ class Property_info(models.Model):
     building_name = models.CharField(max_length=200)
     property_name = models.CharField(max_length=200)
     property_type = models.ForeignKey(PropertyType, on_delete=models.CASCADE)
+    property_number = models.IntegerField(unique=True,  null=True,)  # Ensures uniqueness
+    
+    joint_number = models.IntegerField(
+        validators=[MinValueValidator(0), MaxValueValidator(4)],
+        blank=True,
+        null=True,
+        help_text="Select the joint number (0, 1, 2, 3, 4) or leave empty if not applicable"
+    )
     unit_type = models.ForeignKey('UnitType', on_delete=models.CASCADE)
     floor_number = models.IntegerField(choices=FLOOR_NUMBER_CHOICES)
     number_of_bedrooms = models.PositiveIntegerField()
@@ -72,13 +87,7 @@ class Property_info(models.Model):
     street_address = models.CharField(max_length=255, null=True, blank=True)
     city = models.CharField(max_length=255, null=True, blank=True)
     country = models.CharField(max_length=255, null=True, blank=True)
-    AREA_TYPE_CHOICES = [
-        ('SQFT', 'Square Feet (SQFT)'),
-        ('MARLA', 'Marla'),
-        ('KANAL', 'Kanal'),
-    ]
-    area_type = models.CharField(max_length=10, choices=AREA_TYPE_CHOICES,null=True, blank=True)
-    area_value = models.FloatField(blank=True, null=True)  # To store the area size input by the user
+    property_area = models.ForeignKey('AreaType', on_delete=models.CASCADE,null=True, blank=True)
     property_value = models.DecimalField(max_digits=15, decimal_places=2, null=True, blank=True)
     STATUS_TYPE_CHOICES = [
         ('Available', 'Available'),
@@ -92,12 +101,12 @@ class Property_info(models.Model):
     document_attachment = models.FileField(upload_to='documents/', null=True, blank=True)  # Document attachment
     is_rented = models.BooleanField(choices=[(True, 'Yes'), (False, 'No')], default=False)  # Rented (Yes/No)
     owner = models.ForeignKey('Owner', related_name='properties', on_delete=models.CASCADE,null=True, blank=True)  # Ensure this line exists  # Create the one-to-many relationship here
-  
+   
     
     def __str__(self):
      return (
         f" ({self.block_name.block_name}) - "
-        f" {self.property_type.property_number}, Joint Number: {self.property_type.joint_number}"
+        f" {self.property_number}, Joint Number: {self.joint_number}"
     )
 
     
@@ -130,6 +139,20 @@ class Owner(models.Model):
         return self.owner_name
     
     
+ # add OwnerProperty   model 
+class OwnerProperty(models.Model):
+    owner = models.ForeignKey(Owner, related_name='owner_properties', on_delete=models.CASCADE)
+    property_info = models.ForeignKey(Property_info, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = ('owner', 'property_info')
+
+    def __str__(self):
+        return f"{self.owner} - {self.property_info}"   
+    
+    
+       
+    #tenant model
 class Tenant(models.Model):
     tenant_id = models.AutoField(primary_key=True)
     tenant_name = models.CharField(max_length=255)
@@ -153,24 +176,70 @@ class Tenant(models.Model):
     def __str__(self):
         return self.tenant_name
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
- 
- # add OwnerProperty   model 
-class OwnerProperty(models.Model):
-    owner = models.ForeignKey(Owner, related_name='owner_properties', on_delete=models.CASCADE)
-    property_info = models.ForeignKey(Property_info, on_delete=models.CASCADE)
-
-    class Meta:
-        unique_together = ('owner', 'property_info')
+   #bills Setup models 
+class BillsSetup(models.Model):
+    bill_setup_id = models.AutoField(primary_key=True)  # Custom primary key
+    property_type_name = models.ForeignKey('PropertyType', on_delete=models.CASCADE, related_name='bills_setups')
+    property_area = models.ForeignKey('AreaType', on_delete=models.CASCADE, related_name='bills_setups')
+    property_number = models.ForeignKey('Property_info', on_delete=models.CASCADE, related_name='bills_setups')
+    charges = models.JSONField()  # Use JSONField for dynamic fields
 
     def __str__(self):
-        return f"{self.owner} - {self.property_info}"    
+        return f"Bills setup for {self.property_type_name} - {self.property_area} - {self.property_number}"
+    
+   #add model ManagementCommittee
+class ManagementCommittee(models.Model):
+    mc_id = models.AutoField(primary_key=True)
+    mc_name = models.CharField(max_length=200)
+    GUARDIAN_TYPE_CHOICES = [
+        ('S/O', 'Son of'),
+        ('D/O', 'Daughter of'),
+        ('W/O', 'Wife of'),
+    ]  
+    mc_guardian_type = models.CharField(
+        max_length=255,
+        choices=GUARDIAN_TYPE_CHOICES,
+        null=True,
+        blank=True
+    )
+    STATUS_CHOICES = [
+        (1, 'Active'),
+        (0, 'Expired'),
+    ]
+    mc_guardian_name = models.CharField(max_length=255, null=True, blank=True)
+    mc_email = models.EmailField(max_length=200)
+    mc_contact = models.CharField(max_length=200)
+    mc_pre_address = models.CharField(max_length=500)
+    mc_per_address = models.CharField(max_length=500)
+    mc_cnic = models.CharField(max_length=200)
+    mc_member_type = models.ForeignKey('MemberTypeSetup',on_delete=models.CASCADE)
+    mc_joining_date = models.DateField()  # Consider DateField for date
+    mc_ending_date = models.DateField()   # Consider DateField for date
+    mc_status = models.IntegerField(choices=STATUS_CHOICES, default=1)  # Updated with choices
+    mc_image = models.ImageField(upload_to='M_C_profiles/', null=True, blank=True)
+    mc_password = models.CharField(max_length=200)
+
+    def __str__(self):
+        return self.mc_name    
+    
+    # add model MemberTypeSetup
+class MemberTypeSetup(models.Model):
+    member_type_id = models.AutoField(primary_key=True)
+    member_type_name = models.CharField(max_length=200)
+
+    def __str__(self):
+        return self.member_type_name   
+    
+    
+# add model MaintenanceCost
+class MaintenanceCost(models.Model):
+    m_id = models.AutoField(primary_key=True)  # Auto-incrementing primary key
+    m_title = models.CharField(max_length=200)  # Title of the maintenance cost
+    m_date = models.DateField()  # Date of the maintenance cost
+    m_amount = models.DecimalField(max_digits=10, decimal_places=2)  # Amount of the maintenance cost
+    m_details = models.TextField(null=True, blank=True)  # Additional details
+
+    def __str__(self):
+        return self.m_title    
+ 
+  

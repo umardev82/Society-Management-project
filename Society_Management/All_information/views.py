@@ -1,6 +1,6 @@
 from rest_framework import viewsets
-from .models import Block_info ,Property_info,PropertyType,UnitType,Amenity,Service,Owner, OwnerProperty,Tenant
-from .serializers import Block_info_serlializer, Owner_display_info_Serializer ,Property_info_serializer, Property_info_serializer_for_display_data,Property_type_serializer, Tenant_display_info_Serializer,Unit_type_serializer,Amenity_serializer,ServiceSerializer,OwnerPropertySerializer,OwnerSerializer,TenantSerializer
+from .models import AreaType, BillsSetup, Block_info, MaintenanceCost, ManagementCommittee, MemberTypeSetup ,Property_info,PropertyType,UnitType,Amenity,Service,Owner, OwnerProperty,Tenant
+from .serializers import AreaTypeSerializer, BillsSetupSerializer, Block_info_serlializer, MaintenanceCostSerializer, ManagementCommitteeDisplaySerializer, ManagementCommitteeSerializer, MemberTypeSetupSerializer, Owner_display_info_Serializer ,Property_info_serializer, Property_info_serializer_for_display_data,Property_type_serializer, Tenant_display_info_Serializer,Unit_type_serializer,Amenity_serializer,ServiceSerializer,OwnerPropertySerializer,OwnerSerializer,TenantSerializer
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.response import Response
@@ -28,6 +28,10 @@ class AmenityViewSet(viewsets.ModelViewSet):
 class ServiceViewSet(viewsets.ModelViewSet):
     queryset = Service.objects.all()
     serializer_class=ServiceSerializer 
+ 
+class AreaTypeViewSet(viewsets.ModelViewSet):
+    queryset = AreaType.objects.all()
+    serializer_class = AreaTypeSerializer    
     
 class PropertyInfoViewSet(viewsets.ModelViewSet):
     queryset = Property_info.objects.all()
@@ -64,37 +68,9 @@ class OwnerViewSet(viewsets.ModelViewSet):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    # def create(self, request, *args, **kwargs):
-    #     data = request.data.copy()
-    #     data.pop('csrfmiddlewaretoken', None)
-
-    #     country_name = data.get('owner_country')
-    #     city_name = data.get('owner_city')
-
-    #     if not country_name or not city_name:
-    #         # Default country and city if not provided
-    #         country_name = country_name or 'Pakistan'
-    #         city_name = city_name or 'Lahore'
-
-    #     # Assign country and city names directly to the data
-    #     data['owner_country'] = country_name
-    #     data['owner_city'] = city_name
-
-    #     serializer = self.get_serializer(data=data)
-    #     if serializer.is_valid():
-    #         serializer.save()
-    #         return Response(serializer.data, status=status.HTTP_201_CREATED)
-    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-  
-class TenantViewSet(viewsets.ModelViewSet):
-    queryset = Tenant.objects.all()
-    serializer_class = TenantSerializer
-
-    def get_serializer_class(self):
-        if self.action in ['create', 'update', 'partial_update', 'destroy']:
-            return TenantSerializer
-        else:
-            return Tenant_display_info_Serializer
+ 
+    
+    
 
 class OwnerPropertyViewSet(viewsets.ModelViewSet):
     queryset = OwnerProperty.objects.all()
@@ -120,6 +96,47 @@ class OwnerPropertyViewSet(viewsets.ModelViewSet):
         except Owner.DoesNotExist:
             return Response({"error": "Owner not found."}, status=status.HTTP_404_NOT_FOUND)
         except Property_info.DoesNotExist:
-            return Response({"error": "Property not found."}, status=status.HTTP_404_NOT_FOUND)
+            return Response({"error": "Property not found."}, status=status.HTTP_404_NOT_FOUND)    
+    
+    
+  
+class TenantViewSet(viewsets.ModelViewSet):
+    queryset = Tenant.objects.all()
+    serializer_class = TenantSerializer
+
+    def get_serializer_class(self):
+        if self.action in ['create', 'update', 'partial_update', 'destroy']:
+            return TenantSerializer
+        else:
+            return Tenant_display_info_Serializer
+        
+
+class BillsSetupViewSet(viewsets.ModelViewSet):
+    queryset = BillsSetup.objects.all()
+    serializer_class = BillsSetupSerializer        
+        
+ 
+ 
+class ManagementCommitteeViewSet(viewsets.ModelViewSet):
+    queryset = ManagementCommittee.objects.all()
+    serializer_class = ManagementCommitteeSerializer
+    def get_serializer_class(self):
+        if self.action in ['create', 'update', 'partial_update', 'destroy']:
+            return ManagementCommitteeSerializer
+        else:
+            return ManagementCommitteeDisplaySerializer       
+
+class MemberTypeSetupViewSet(viewsets.ModelViewSet):
+    queryset = MemberTypeSetup.objects.all()
+    serializer_class = MemberTypeSetupSerializer        
+        
+class MaintenanceCostViewSet(viewsets.ModelViewSet):
+    queryset = MaintenanceCost.objects.all()
+    serializer_class = MaintenanceCostSerializer        
+        
+        
+        
+        
+
  
  

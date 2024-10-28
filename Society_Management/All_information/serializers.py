@@ -1,7 +1,7 @@
 
 from rest_framework import serializers
-from .models import Block_info,Property_info,PropertyType, Tenant,UnitType,Amenity,Service,Owner, OwnerProperty
-
+from .models import AreaType, BillsSetup, Block_info, MaintenanceCost, ManagementCommittee, MemberTypeSetup,Property_info,PropertyType, Tenant,UnitType,Amenity,Service,Owner, OwnerProperty
+from rest_framework.exceptions import ValidationError
 
 class Block_info_serlializer(serializers.ModelSerializer):
     class Meta:
@@ -11,7 +11,7 @@ class Block_info_serlializer(serializers.ModelSerializer):
 class Property_type_serializer(serializers.ModelSerializer):
     class Meta:
         model =PropertyType
-        fields=['pro_type_id','property_number','joint_number','property_name']   
+        fields=['pro_type_id','property_name']   
  
 class Unit_type_serializer(serializers.ModelSerializer):
     class Meta:
@@ -28,17 +28,22 @@ class ServiceSerializer(serializers.ModelSerializer):
         model = Service
         fields = '__all__'        
         
+class AreaTypeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AreaType
+        fields = ['area_type_id', 'area_type_name', 'area_value']        
        
 class Property_info_serializer_for_display_data(serializers.ModelSerializer):
     block_name = Block_info_serlializer()
     property_type = Property_type_serializer()
     unit_type = Unit_type_serializer()
-    amenity_name = Amenity_serializer() 
+    amenity_name = Amenity_serializer()
+    property_area = AreaTypeSerializer() 
     
     class Meta:
         model = Property_info
-        fields = '__all__'  
-        
+        # Instead of '__all__', specify all fields except 'owner'
+        exclude = ['owner']  # Exclude the 'owner' field
         
 class Property_info_serializer(serializers.ModelSerializer):
 
@@ -50,6 +55,8 @@ class Property_info_serializer(serializers.ModelSerializer):
             'building_name',
             'property_name',
             'property_type',
+            'property_number',
+            'joint_number',
             'unit_type',
             'floor_number',
             'number_of_bedrooms',
@@ -60,8 +67,7 @@ class Property_info_serializer(serializers.ModelSerializer):
             'street_address',
             'country',
             'city',
-            'area_type',
-            'area_value',
+            'property_area',
             'property_value',
             'status',
             'amenity_name',
@@ -88,12 +94,7 @@ class Owner_display_info_Serializer(serializers.ModelSerializer):
         fields = '__all__'  
 
    
-  
 class OwnerSerializer(serializers.ModelSerializer):
-  
-  
-    # owner_country = serializers.CharField(max_length=100)
-    # owner_city = serializers.CharField(max_length=100)
     properties = serializers.PrimaryKeyRelatedField(many=True, queryset=Property_info.objects.all(), required=False)
 
     class Meta:
@@ -110,45 +111,74 @@ class OwnerSerializer(serializers.ModelSerializer):
             'owner_cnic',
             'owner_address',
             'owner_country',
-             'owner_city',
+            'owner_city',
             'document_attachment',
-            'properties',  # Include properties field for owner
+            'properties',
         ]
-    # def __init__(self, *args, **kwargs):
-    #     super().__init__(*args, **kwargs)
-    #     self.fields['owner_country'].choices = self.get_countries()
-    #     self.fields['owner_city'].choices = self.get_cities()
-    # def __init__(self, *args, **kwargs):
-    #   super().__init__(*args, **kwargs)
-    #   countries = self.get_countries()
-    #   cities = self.get_cities()
-    #   print("Countries fetched: ", countries)
-    #   print("Cities fetched: ", cities)
-    #   self.fields['owner_country'].choices = countries
-    #   self.fields['owner_city'].choices = cities
 
-    # def get_countries(self):
-    #     url = 'https://countriesnow.space/api/v0.1/countries'
-    #     response = requests.get(url)
-    #     if response.status_code == 200:
-    #         data = response.json().get('data', [])
-    #         return [(country['country'], country['country']) for country in data]
-    #     return []
+    def validate_properties(self, value):
+        # Check if any property is already assigned to another owner
+        for property_obj in value:
+            if property_obj.owner_id and property_obj.owner_id != self.instance.pk:
+                raise ValidationError(
+                    f"Property {property_obj.property_name} is already assigned to another owner and cannot be reassigned."
+                )
+        return value
 
-    # def get_cities(self):
-    #     url = 'https://countriesnow.space/api/v0.1/countries'
-    #     response = requests.get(url)
-    #     if response.status_code == 200:
-    #         data = response.json().get('data', [])
-    #         all_cities = []
-    #         for country in data:
-    #             cities = country.get('cities', [])
-    #             all_cities.extend([(city, city) for city in cities])
-    #         return all_cities
-    #     return []
+    def create(self, validated_data):
+        properties = validated_data.pop('properties', [])
+        
+        # Save owner instance first to generate pk
+        owner = super().create(validated_data)
+        
+        # Assign properties to the owner
+        for property_obj in properties:
+            property_obj.owner_id = owner.pk
+            property_obj.save()
+        
+        return owner
+
+    def update(self, instance, validated_data):
+        properties = validated_data.pop('properties', [])
+        
+        # Clear existing properties for this owner
+        Property_info.objects.filter(owner_id=instance.pk).update(owner_id=None)
+        
+        # Update owner instance with other fields
+        owner = super().update(instance, validated_data)
+        
+        # Assign new properties to the owner
+        for property_obj in properties:
+            property_obj.owner_id = owner.pk
+            property_obj.save()
+        
+        return owner
+# class OwnerSerializer(serializers.ModelSerializer):
+  
+#     properties = serializers.PrimaryKeyRelatedField(many=True, queryset=Property_info.objects.all(), required=False)
+
+#     class Meta:
+#         model = Owner
+#         fields = [
+#             'owner_id',
+#             'owner_name',
+#             'owner_guardian_name',
+#             'owner_profile_picture',
+#             'owner_phone_number',
+#             'password',
+#             'owner_email',
+#             'owner_membership_number',
+#             'owner_cnic',
+#             'owner_address',
+#             'owner_country',
+#              'owner_city',
+#             'document_attachment',
+#             'properties',  # Include properties field for owner
+#         ]
     
 class Tenant_display_info_Serializer(serializers.ModelSerializer):
     assign_property = Property_info_serializer_for_display_data()
+    
     class Meta:
         model = Tenant
         fields = '__all__'  
@@ -175,3 +205,39 @@ class TenantSerializer(serializers.ModelSerializer):
             'assign_property',
             'agreement_attachment',
         ]    
+        
+class BillsSetupSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BillsSetup
+        fields = ['bill_setup_id', 'property_type_name', 'property_area', 'property_number', 'charges']
+
+    def validate_charges(self, value):
+        if not isinstance(value, dict):
+            raise serializers.ValidationError("Charges must be a dictionary of key-value pairs.")
+        return value        
+ 
+ 
+class MemberTypeSetupSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MemberTypeSetup
+        fields = '__all__'
+
+class ManagementCommitteeDisplaySerializer(serializers.ModelSerializer):
+    mc_member_type = MemberTypeSetupSerializer() 
+
+    class Meta:
+        model = ManagementCommittee
+        fields = '__all__'    
+        
+class ManagementCommitteeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ManagementCommittee
+        fields = '__all__'
+        
+      
+class MaintenanceCostSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MaintenanceCost
+        fields = '__all__' 
+
+                       

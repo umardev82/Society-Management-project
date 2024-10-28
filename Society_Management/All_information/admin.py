@@ -7,7 +7,7 @@ class AdminBlock(admin.ModelAdmin):
 
 @admin.register(PropertyType)
 class AdminPropertyType(admin.ModelAdmin):
-    list_display =['pro_type_id','property_number','property_name']  
+    list_display =['pro_type_id','property_name']  
     
 @admin.register(UnitType)
 class AdminUnitType(admin.ModelAdmin):
@@ -27,6 +27,7 @@ class PropertyAdmin(admin.ModelAdmin):
             'building_name',
             'property_name',
             'property_type',
+            
             'unit_type',
             'floor_number',
             'number_of_bedrooms',
@@ -37,8 +38,7 @@ class PropertyAdmin(admin.ModelAdmin):
             'street_address',
             'city',
             'country',
-            'area_type',
-            'area_value',
+           
             'property_value',
             'amenity_name',
             'size_in_sqm',  
