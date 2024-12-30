@@ -302,7 +302,7 @@ const handlePropertyChange = (e) => {
               <option value="">Select Property</option>
               {properties.map((property) => (
                 <option key={property.property_id} value={property.property_id}>
-                  {`( ${property.block_name?.block_name} ) - ${property.property_type?.property_number}, Joint Number: ${property.property_type?.joint_number}`}
+                  {`( ${property.block_name?.block_name} ) - ${property.property_number}, Joint Number: ${property.joint_number}`}
                 </option>
               ))}
             </select>

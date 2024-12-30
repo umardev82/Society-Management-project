@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import useOwner from '../../../hooks/useOwner';
 import useProperty from '../../../hooks/useProperty';
-
 const AddOwner = () => {
   const [ownerData, setOwnerData] = useState({
     owner_name: '',
@@ -16,24 +15,41 @@ const AddOwner = () => {
     owner_country: '',
     owner_city: '',
     document_attachment: '',
-    properties: [], 
+    properties: [],
   });
-
   const { countries, cities, fetchCities, fetchOwners, addOwner, successMessage, errorMessage } = useOwner();
   const [properties, setProperties] = useState([]);
   const [selectedProperty, setSelectedProperty] = useState('');
 
   useEffect(() => {
     const fetchProperties = async () => {
-      const response = await fetch('http://127.0.0.1:8000/property_info/'); // Replace with your API endpoint
-      const data = await response.json();
-      setProperties(data);
+      try {
+        const response = await fetch('http://127.0.0.1:8000/property_info/');
+        const data = await response.json();
+        const updatedProperties = data.map(property => ({
+          ...property,
+          isAssigned: !!property.owner_id
+        }));
+        setProperties(updatedProperties);
+      } catch (err) {
+        setErrorMessage('Failed to load properties.');
+      }
     };
 
     fetchProperties();
     fetchOwners();
   }, []);
 
+  const handlePropertyChange = (e) => {
+    const selectedOptions = Array.from(e.target.selectedOptions);
+    const selectedPropertyIds = selectedOptions.map((option) => parseInt(option.value, 10));
+
+    setOwnerData((prevData) => ({
+      ...prevData,
+      properties: selectedPropertyIds,
+    }));
+    setSelectedProperty(selectedPropertyIds);
+  };
   const handleChange = (e) => {
     const { name, value } = e.target;
     setOwnerData((prevData) => ({
@@ -49,12 +65,9 @@ const AddOwner = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData();
-
-    // Append all other fields to formData
     Object.keys(ownerData).forEach((key) => {
       if (key !== 'document_attachment') {
         if (Array.isArray(ownerData[key])) {
-          // Append each property ID individually
           ownerData[key].forEach((propertyId) => {
             formData.append('properties', propertyId);
           });
@@ -64,13 +77,12 @@ const AddOwner = () => {
       }
     });
 
-
     if (ownerData.document_attachment) {
       formData.append('document_attachment', ownerData.document_attachment);
     }
 
     const success = await addOwner(formData);
-    
+
     if (success) {
       successMessage('Owner added successfully!');
       setOwnerData({
@@ -88,18 +100,8 @@ const AddOwner = () => {
         document_attachment: '',
         properties: [],
       });
-      setSelectedProperty(''); // Reset the selected property
+      setSelectedProperty([]); // Reset the selected properties
     }
-  };
-
-  const handlePropertyChange = (e) => {
-    const selectedOptions = Array.from(e.target.selectedOptions);
-    const selectedPropertyIds = selectedOptions.map((option) => parseInt(option.value, 10));
-
-    setOwnerData((prevData) => ({
-      ...prevData,
-      properties: selectedPropertyIds, // Update the properties with selected IDs
-    }));
   };
 
   return (
@@ -265,21 +267,30 @@ const AddOwner = () => {
             />
           </div>
           <div className="mb-4">
+          <div className="mb-4">
           <select
-              multiple
-              className='w-full text-sm px-4 py-2 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none focus:border-green-700'
-              id="property"
-              value={ownerData.properties}
-              onChange={handlePropertyChange}
-            >
-              <option value="">Select Property</option>
-              {properties.map((property) => (
-                <option key={property.property_id} value={property.property_id}>
-                  {`( ${property.block_name?.block_name} ) - ${property.property_type?.property_number}, Joint Number: ${property.property_type?.joint_number}`}
-                </option>
-              ))}
-            </select>
-
+            multiple
+            className="w-full text-sm px-4 py-2 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none focus:border-green-700"
+            id="property"
+            value={selectedProperty}
+            onChange={handlePropertyChange}
+          >
+            <option value="">Select Property</option>
+            {properties.map((property) => (
+              <option
+                key={property.property_id}
+                value={property.property_id}
+                disabled={property.isAssigned}
+                style={{
+                  color: property.isAssigned ? 'gray' : 'black',
+                  textDecoration: property.isAssigned ? 'line-through' : 'none',
+                }}
+              >
+                {`( ${property.block_name?.block_name} ) - ${property.property_number}, Joint Number: ${property.joint_number}`}
+              </option>
+            ))}
+          </select>
+        </div>
           </div>
         </div>
         <button

@@ -10,8 +10,8 @@ const PropertyTypeList = () => {
     const [isViewModalOpen, setIsViewModalOpen] = useState(false);
     const [selectedPropertyType, setSelectedPropertyType] = useState(null);
     const [editPropertyName, setEditPropertyName] = useState('');
-    const [editPropertyNumber, setEditPropertyNumber] = useState('');
-    const [editJointNumber, setEditJointNumber] = useState('');
+    // const [editPropertyNumber, setEditPropertyNumber] = useState('');
+    // const [editJointNumber, setEditJointNumber] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
 
@@ -26,8 +26,8 @@ const PropertyTypeList = () => {
     const handleOpenEditModal = (propertyType) => {
         setSelectedPropertyType(propertyType);
         setEditPropertyName(propertyType.property_name);
-        setEditPropertyNumber(propertyType.property_number);
-        setEditJointNumber(propertyType.joint_number);
+        // setEditPropertyNumber(propertyType.property_number);
+        // setEditJointNumber(propertyType.joint_number);
         setIsEditModalOpen(true);
     };
 
@@ -44,7 +44,7 @@ const PropertyTypeList = () => {
     const handleEditPropertyType = () => {
         if (selectedPropertyType) {
             // Call the edit function and handle the response
-            editPropertyType(selectedPropertyType.pro_type_id, editPropertyName, editPropertyNumber, editJointNumber)
+            editPropertyType(selectedPropertyType.pro_type_id, editPropertyName)
                 .then((result) => {
                     // Set success or error message based on result
                     if (result.success) {
@@ -79,8 +79,8 @@ const PropertyTypeList = () => {
                     <tr>
                         <th className="border text-start px-4 py-2">#</th>
                         <th className="border text-start px-4 py-2">Property Type</th>
-                        <th className="border text-start px-4 py-2">Property Number</th>
-                        <th className="border text-start px-4 py-2">Joint Number</th>
+                        {/* <th className="border text-start px-4 py-2">Property Number</th>
+                        <th className="border text-start px-4 py-2">Joint Number</th> */}
                         <th className="border text-start px-4 py-2">Actions</th>
                     </tr>
                 </thead>
@@ -89,8 +89,8 @@ const PropertyTypeList = () => {
                         <tr key={propertyType.pro_type_id}>
                             <td className="border px-4 py-2">{index + 1}</td>
                             <td className="border px-4 py-2">{propertyType.property_name}</td>
-                            <td className="border px-4 py-2">{propertyType.property_number}</td>
-                            <td className="border px-4 py-2">{propertyType.joint_number}</td>
+                            {/* <td className="border px-4 py-2">{propertyType.property_number}</td>
+                            <td className="border px-4 py-2">{propertyType.joint_number}</td> */}
                             <td className="border px-4 py-2">
                                 <ul className="flex gap-2 text-left">
                                     <li className="text-green-700 cursor-pointer" onClick={() => handleOpenViewModal(propertyType)}>
@@ -120,7 +120,7 @@ const PropertyTypeList = () => {
                         placeholder="Property Type Name"
                          className="w-full px-4 py-2 border border-gray-300 rounded-sm"
                     />
-                    <input
+                    {/* <input
                         type="number"
                         value={editPropertyNumber}
                         onChange={(e) => setEditPropertyNumber(e.target.value)}
@@ -132,7 +132,7 @@ const PropertyTypeList = () => {
                            onChange={(e) => setEditJointNumber(e.target.value)}
                            placeholder="Joint Number"
                            className='w-full px-4 py-2 border border-gray-300 rounded-sm mt-2'
-                    />
+                    /> */}
                      <button
         onClick={handleEditPropertyType}
         className="mt-4 w-auto bg-green-700 text-white px-5 py-2 rounded-sm hover:bg-green-600 transition-colors duration-300"
@@ -172,8 +172,8 @@ const PropertyTypeList = () => {
                 <Modal isVisible={isViewModalOpen} onClose={() => setIsViewModalOpen(false)}>
                 <h2 className="text-xl mb-4">Property Type Details</h2>
                 <p><strong>Property Type Name:</strong> {selectedPropertyType?.property_name}</p>
-                <p><strong>Property Number: </strong> {selectedPropertyType?.property_number}</p>
-                <p><strong>Joint Number: </strong> Joint: {selectedPropertyType?.joint_number}</p>
+                {/* <p><strong>Property Number: </strong> {selectedPropertyType?.property_number}</p>
+                <p><strong>Joint Number: </strong> Joint: {selectedPropertyType?.joint_number}</p> */}
                    
                 </Modal>
            

@@ -8,12 +8,11 @@ const usePropertyType = () => {
     const [loading, setLoading] = useState(true);
 
     // Add property type
-    const addPropertyType = async (propertyName, propertyNumber, jointNumber) => {
+    const addPropertyType = async (propertyName) => {
         try {
             const response = await axios.post(`${API_BASE_URL}/property_type_info/`, {
                 property_name: propertyName,
-                property_number: propertyNumber,
-                joint_number:jointNumber,
+              
             });
     
             // Check for both 200 and 201 status codes
@@ -53,12 +52,10 @@ const usePropertyType = () => {
 
     // edit property type
 
-    const editPropertyType = async (id, updatedPropertyName, updatedPropertyNumber, updatedJointNumber) => {
+    const editPropertyType = async (id, updatedPropertyName) => {
         try {
             const response = await axios.put(`${API_BASE_URL}/property_type_info/${id}/`, {
                 property_name: updatedPropertyName,
-                property_number: updatedPropertyNumber,
-                joint_number: updatedJointNumber,
             });
     
             // Check for a successful response

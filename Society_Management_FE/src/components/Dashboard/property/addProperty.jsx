@@ -4,6 +4,7 @@ import useBlock from '../../../hooks/useBlock';
 import useAmenity from '../../../hooks/useAmenity';
 import useUnitType from '../../../hooks/useUnitType';
 import usePropertyType from '../../../hooks/usePropertyType';
+import useAreaType from '../../../hooks/useAreaType';
 
 const AddProperty = () => {
   const [propertyData, setPropertyData] = useState({
@@ -11,6 +12,8 @@ const AddProperty = () => {
     building_name: '',
     property_name: '',
     property_type: '',
+    property_number: '',
+    joint_number: '',
     unit_type: '',
     floor_number: '',
     number_of_bedrooms: '',
@@ -21,8 +24,7 @@ const AddProperty = () => {
     street_address: '',
     city: '',
     country: '',
-    area_type: '',
-    area_value: '',
+    property_area: '',
     property_value: '',
     status:'',
     amenity_name: '',
@@ -36,13 +38,15 @@ const AddProperty = () => {
   const { amenities, fetchAmenities } = useAmenity();
   const { unitTypes, fetchUnitTypes} = useUnitType();
   const { propertyTypes, fetchPropertyTypes} = usePropertyType();
+  const { areaTypes, fetchAreaTypes} = useAreaType();
   const {countries, cities, fetchCities, addProperty, successMessage, errorMessage, setSuccessMessage } = useProperty();
-
+  
   useEffect(() => {
     fetchBlocks();
     fetchAmenities();
     fetchPropertyTypes();
     fetchUnitTypes();
+    fetchAreaTypes();
   }, []);
 
   const handleChange = (e) => {
@@ -63,36 +67,35 @@ const AddProperty = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData();
-
-       // Append non-file fields to FormData
-       Object.keys(propertyData).forEach((key) => {
-        if (key !== 'document_attachment' && key !== 'is_rented') {
-          formData.append(key, propertyData[key]);
-        }
-      });
   
-      // Append the document_attachment (file) to FormData if it exists
-      if (propertyData.document_attachment) {
-        formData.append('document_attachment', propertyData.document_attachment);
+    // Append non-file fields to FormData
+    Object.keys(propertyData).forEach((key) => {
+      if (key !== 'document_attachment' && key !== 'is_rented') {
+        formData.append(key, propertyData[key]);
       }
+    });
   
-   // Handle is_rented as 1 or 0 and append it to FormData
-
-  formData.append('is_rented', propertyData.is_rented ? 'True' : 'False');
-   
+    // Append the document_attachment (file) to FormData if it exists
+    if (propertyData.document_attachment) {
+      formData.append('document_attachment', propertyData.document_attachment);
+    }
   
-      // Submit the form data to the backend
-      const success = await addProperty(formData);
-
-
-   
-    if (success) {
+    // Handle is_rented as 1 or 0 and append it to FormData
+    formData.append('is_rented', propertyData.is_rented ? 'True' : 'False');
+  
+    // Submit the form data to the backend
+    try {
+      const response = await addProperty(formData);
+  
+  
       setSuccessMessage('Property added successfully!');
       setPropertyData({
         block_name: '',
         building_name: '',
         property_name: '',
         property_type: '',
+        property_number: '',
+        joint_number: '',
         unit_type: '',
         floor_number: '',
         number_of_bedrooms: '',
@@ -103,18 +106,20 @@ const AddProperty = () => {
         street_address: '',
         city: '',
         country: '',
-        area_type: '',
-        area_value: '',
+        property_area: '',
         property_value: '',
-        status:'',
+        status: '',
         amenity_name: '',
         size_in_sqm: '',
-        is_active:false,
-        document_attachment:'',
-        is_rented:0
+        is_active: false,
+        document_attachment: '',
+        is_rented: 0
       });
+    } catch (error) {
+      console.error("Error adding property:", error);
     }
   };
+  
 
   return (
     <form onSubmit={handleSubmit}>
@@ -137,9 +142,15 @@ const AddProperty = () => {
       <select name="property_type" value={propertyData.property_type} onChange={handleChange} required className="w-full text-sm px-4 py-2 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none focus:border-green-700">
         <option value="">Select Property Type</option>
         {propertyTypes.map((propertyType) => (
-    <option key={propertyType.pro_type_id} value={propertyType.pro_type_id}>{propertyType.property_number} - {propertyType.property_name} ( joint: {propertyType.joint_number} )</option>  
+    <option key={propertyType.pro_type_id} value={propertyType.pro_type_id}>{propertyType.property_name}</option>  
   ))}
       </select>
+    </div>
+    <div className="mb-2">
+      <input type="number" name="property_number" placeholder='Property Number' value={propertyData.property_number} onChange={handleChange} required className="w-full text-sm px-4 py-2 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none focus:border-green-700"/>
+    </div>
+    <div className="mb-2">
+      <input type="number" name="joint_number" placeholder='Joint Number' value={propertyData.joint_number} onChange={handleChange} required className="w-full text-sm px-4 py-2 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none focus:border-green-700"/>
     </div>
     <div className="mb-2">
       <select name="unit_type" value={propertyData.unit_type} onChange={handleChange} required className="w-full text-sm px-4 py-2 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none focus:border-green-700">
@@ -228,17 +239,25 @@ const AddProperty = () => {
           ))}
         </select>
       </div>
-        <div className="mb-2">
+        {/* <div className="mb-2">
           <select name="area_type" value={propertyData.area_type} onChange={handleChange} className="w-full text-sm px-4 py-2 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none focus:border-green-700">
             <option value="">Area Type</option>
             <option value="SQFT">Square Feet (SQFT)</option>
             <option value="MARLA">Marla</option>
             <option value="KANAL">Kanal</option>
           </select>
-        </div>
+        </div> */}
         <div className="mb-2">
+      <select name="property_area" value={propertyData.property_area} onChange={handleChange} required className="w-full text-sm px-4 py-2 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none focus:border-green-700">
+        <option value="">Select Property Area</option>
+        {areaTypes.map((areaType) => (
+    <option key={areaType.area_type_id} value={areaType.area_type_id}>{areaType.area_type_name} {areaType.area_value}</option>  
+  ))}
+      </select>
+    </div>
+        {/* <div className="mb-2">
           <input type="number" name="area_value" placeholder='Area Value' value={propertyData.area_value} onChange={handleChange} className="w-full text-sm px-4 py-2 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none focus:border-green-700" />
-        </div>
+        </div> */}
         <div className="mb-2">
           <input type="text" name="property_value" placeholder='Property Value' value={propertyData.property_value} onChange={handleChange} className="w-full text-sm px-4 py-2 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none focus:border-green-700" />
         </div>

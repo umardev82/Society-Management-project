@@ -53,28 +53,34 @@ useEffect(() => {
 
 // Add owner
 const addOwner = async (ownerData) => {
-  try{
-    console.log('add owner...')
+  try {
+    console.log('add owner...');
     const response = await axios.post(`${API_BASE_URL}/owners/`, ownerData);
-    setOwners([...owners, response.data]);
-    setSuccessMessage('Owner Added Successfully!');
-    return true;
-  }catch(error){
-     // Check if the error response has data
-     if (error.response && error.response.data) {
-        // Extract error messages from the response
-        const errorData = error.response.data;
-        const formattedErrors = Object.entries(errorData)
-          .map(([field, messages]) => `${field}: ${messages.join(' ')}`)
-          .join(', ');
-        setErrorMessage(formattedErrors);  // Set error message
-      } else{
-         setErrorMessage('Failed to add Owner. Please try again.');
-      }
-   
+    
+    // Ensure the response is JSON and contains expected data
+    if (response && response.data) {
+      setOwners([...owners, response.data]);
+      setSuccessMessage('Owner Added Successfully!');
+      return true;
+    } else {
+      throw new Error('Unexpected response format');
+    }
+  } catch (error) {
+    // Log the full error object for debugging
+    console.error('Error adding owner:', error.response || error.message);
+    
+    // Set a user-friendly error message
+    setErrorMessage(error?.response?.data?.properties?.[0] || 'Failed to add Owner. Please try again.');
+    
+    // Optionally, log the actual response to see what went wrong
+    if (error.response) {
+      console.log('Error Response:', error.response.data);
+    }
+    
     return false;
   }
 };
+
 
 //edit Owner (put)
 const editOwner = async (id, updatedData) => {
@@ -97,7 +103,7 @@ const deleteOwner = async (id) => {
   setSuccessMessage('Owner deleted successfully!');
   return true;
  } catch (error) {
-  setErrorMessage('Failed to delete owner. Please try again.');
+  setErrorMessage( 'Failed to delete owner. Please try again.');
   return false;
  }
 };

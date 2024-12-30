@@ -52,27 +52,30 @@ const useProperty = () => {
     try {
       console.log('add property...')
       const response = await axios.post(`${API_BASE_URL}/property_info/`, propertyData);
+
       setProperties([...properties, response.data]);
       setSuccessMessage('Property added successfully!');
       return true;
     } catch (error) {
-      setErrorMessage('Failed to add property. Please try again.');
+      setErrorMessage(error?.response?.data?.property_number?.[0]  || 'Failed to add property. Please try again.');
       return false;
     }
   };
 
-  // Edit property (PUT)
+  // editproperty
   const editProperty = async (id, updatedData) => {
     try {
       const response = await axios.put(`${API_BASE_URL}/property_info/${id}/`, updatedData);
-      setProperties(properties.map(property => property.property_id === id ? response.data : property)); // Change to property.property_id
-      setSuccessMessage('Property updated successfully!');
-      return true;
+      setProperties(properties.map(property => property.property_id === id ? response.data : property));
+      return { success: true, message: 'Property updated successfully!' };
     } catch (error) {
-      setErrorMessage('Failed to update property. Please try again.');
-      return false;
+      return { 
+        success: false, 
+        message: error?.response?.data?.property_number?.[0] || 'Failed to update property. Please try again.' 
+      };
     }
   };
+  
 
   // Delete property (DELETE)
   const deleteProperty = async (id) => {

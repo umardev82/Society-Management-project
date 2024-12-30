@@ -26,6 +26,17 @@ import AddTenant from "./tenant/addTenant";
 import TenantList from "./tenant/tenantList";
 import AddService from "./serviceInfo/addService";
 import ServiceList from "./serviceInfo/serviceList";
+import AddAreaType from "./areaType/addAreaType";
+import AreaTypeList from "./areaType/areaTypeList";
+import AddMemberType from "./memberType/addMemberType";
+import ListMemberType from "./memberType/listMemberType";
+import McList from "./maintenanceCost/mcList";
+import AddMc from "./maintenanceCost/addMc";
+import AddManagementCommittee from "./managementCommittee/addManagementCommittee";
+import ManagementCommitteeList from "./managementCommittee/managementCommitteeList";
+import BillSetup from "./billSetup/billSetup";
+import AddForm from "./formBuilder/addForm";
+import FormsList from "./formBuilder/formList";
 
 const Main = () => {
   const [activeItem, setActiveItem] = useState("Dashboard");
@@ -100,6 +111,53 @@ const Main = () => {
          { name: "Service List", icon: <MdKeyboardDoubleArrowRight/>, component: <ServiceList/>},
       ],
     },
+    {
+      name: "Area Type",
+      icon: <GrServices/>,
+      subItems: [
+        {name: "Add Area Type", icon: <MdKeyboardDoubleArrowRight/>, component: <AddAreaType/>},
+        {name: "Area Type List", icon: <MdKeyboardDoubleArrowRight/>, component: <AreaTypeList/>},
+      ]
+    },
+    {
+      name: "Member Type",
+      icon:<FaUser/>,
+      subItems:[
+        {name: "Add Member Type", icon: <MdKeyboardDoubleArrowRight/>, component: <AddMemberType/>},
+        {name: "Member Type List", icon: <MdKeyboardDoubleArrowRight/>, component: <ListMemberType/>},
+      ]
+    },
+    {
+      name: "Maintenance Cost",
+      icon:<FaUser/>,
+      subItems:[
+        {name: "Add Maintenance Cost", icon: <MdKeyboardDoubleArrowRight/>, component: <AddMc/>},
+        {name: "Maintenance Cost List", icon: <MdKeyboardDoubleArrowRight/>, component: <McList/>},
+      ]
+    },
+    {
+      name: "Management Committee",
+      icon:<FaUser/>,
+      subItems:[
+        {name: "Add Management Committee", icon: <MdKeyboardDoubleArrowRight/>, component: <AddManagementCommittee/>},
+        {name: "Management Commitee List", icon: <MdKeyboardDoubleArrowRight/>, component: <ManagementCommitteeList/>},
+      ]
+    },
+    {
+      name: "Bill Setup",
+      icon:<FaUser/>,
+      subItems:[
+        {name: "Bill Setup", icon: <MdKeyboardDoubleArrowRight/>, component: <BillSetup/>},
+       ]
+    },
+    {
+      name: "Form Builder",
+      icon:<FaUser/>,
+      subItems:[
+        {name: "Add Form", icon: <MdKeyboardDoubleArrowRight/>, component: <AddForm/>},
+        {name: "Form List", icon: <MdKeyboardDoubleArrowRight/>, component: <FormsList/>},        
+       ]
+    },
     { name: "Logout", icon: <TbLogout2 /> },
   ];
 
@@ -145,6 +203,28 @@ const Main = () => {
         return <AddService/>;
       case "Service List":
         return <ServiceList/>;
+      case "Add Area Type":
+        return <AddAreaType/>;
+      case "Area Type List":
+        return <AreaTypeList/>;
+      case "Add Member Type":
+        return <AddMemberType/>;
+      case "Member Type List":
+        return  <ListMemberType/>;
+      case "Add Maintenance Cost":
+        return <AddMc/>;
+      case "Maintenance Cost List":
+        return <McList/>;
+      case "Add Management Committee":
+        return <AddManagementCommittee/>;
+      case "Management Commitee List":
+        return <ManagementCommitteeList/>;
+      case "Bill Setup":
+        return <BillSetup/>;
+      case "Add Form":
+        return <AddForm/>;
+      case "Form List":
+        return <FormsList/>;
       case "Logout":
         handleLogout();
         return null;
