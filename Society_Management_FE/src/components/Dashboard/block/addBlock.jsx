@@ -15,18 +15,12 @@ const AddBlock = () => {
     const { success, message } = await addBlock(blockName);
 
     if (success) {
-      // Set the success message
-      setSuccessMessage(message);
-
-      // Reset the form
+      setSuccessMessage(message);    
       setBlockName('');
-
-      // Redirect to block list after 2 seconds
-      setTimeout(() => {
-        navigate('/all-blocks'); // Adjust the path to your block list page
-      }, 2000); // 2 seconds delay
+      // setTimeout(() => {
+      //   navigate('/all-blocks'); 
+      // }, 2000); 
     } else {
-      // Set the error message
       setErrorMessage(message);
     }
   };

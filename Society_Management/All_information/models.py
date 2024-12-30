@@ -176,16 +176,41 @@ class Tenant(models.Model):
     def __str__(self):
         return self.tenant_name
     
+#    #bills Setup models
+
+# add model form Bilders
+    
+class FormBuilder(models.Model):
+    form_name = models.CharField(max_length=255, unique=True)
+    form_fields = models.JSONField()  # Stores field definitions as JSON
+    
+    def __str__(self):
+        return self.form_name
+    
    #bills Setup models 
 class BillsSetup(models.Model):
+    form = models.ForeignKey(FormBuilder, on_delete=models.CASCADE, related_name='bills', null=True, blank=True)
     bill_setup_id = models.AutoField(primary_key=True)  # Custom primary key
     property_type_name = models.ForeignKey('PropertyType', on_delete=models.CASCADE, related_name='bills_setups')
     property_area = models.ForeignKey('AreaType', on_delete=models.CASCADE, related_name='bills_setups')
-    property_number = models.ForeignKey('Property_info', on_delete=models.CASCADE, related_name='bills_setups')
-    charges = models.JSONField()  # Use JSONField for dynamic fields
-
+    property_number = models.ForeignKey('Property_info', on_delete=models.CASCADE,related_name='bills_setups',null=True, blank=True) 
+    form_data = models.JSONField()  # Use JSONField for dynamic fields
+    
     def __str__(self):
-        return f"Bills setup for {self.property_type_name} - {self.property_area} - {self.property_number}"
+        return f"Bills setup for {self.form.form_name} - {self.property_type_name} - {self.property_area} - {self.property_number}"
+
+
+
+
+# class BillsSetup(models.Model):
+#     bill_setup_id = models.AutoField(primary_key=True)  # Custom primary key
+#     property_type_name = models.ForeignKey('PropertyType', on_delete=models.CASCADE, related_name='bills_setups')
+#     property_area = models.ForeignKey('AreaType', on_delete=models.CASCADE, related_name='bills_setups')
+#     property_number = models.ForeignKey('Property_info', on_delete=models.CASCADE, related_name='bills_setups')
+#     charges = models.JSONField()  # Use JSONField for dynamic fields
+
+#     def __str__(self):
+#         return f"Bills setup for {self.property_type_name} - {self.property_area} - {self.property_number}"
     
    #add model ManagementCommittee
 class ManagementCommittee(models.Model):

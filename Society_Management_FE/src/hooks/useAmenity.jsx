@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useState, useEffect } from 'react';
+import API_BASE_URL from "../config";
 
 const useAmenity = () => {
     const [amenities, setAmenities] = useState([]);
@@ -9,7 +10,7 @@ const useAmenity = () => {
     //add amenity
     const addAmenity = async (amenityName) => {
         try{
-            const response = await axios.post('http://127.0.0.1:8000/amenity_info/' , { 
+            const response = await axios.post(`${API_BASE_URL}/amenity_info/` , { 
                 amenity_name: amenityName,
             });
 
@@ -29,7 +30,7 @@ const useAmenity = () => {
  //get amenities
     const fetchAmenities = async () => {
       try{
-        const response = await axios.get('http://127.0.0.1:8000/amenity_info/');
+        const response = await axios.get(`${API_BASE_URL}/amenity_info/`);
         setAmenities(response.data);
         }
         catch (err) {
@@ -46,7 +47,7 @@ const useAmenity = () => {
     //edit amenities
     const editAmenity = async (id, updateAmenityName) => {
        try{
-        const response = await axios.put(`http://127.0.0.1:8000/amenity_info/${id}/`,{
+        const response = await axios.put(`${API_BASE_URL}/amenity_info/${id}/`,{
             amenity_name: updateAmenityName,
         });
 
@@ -67,7 +68,7 @@ const useAmenity = () => {
     //Delete Amenity
     const deleteAmenity = async (id) => {
       try{
-        const response = await axios.delete(`http://127.0.0.1:8000/amenity_info/${id}/`);
+        const response = await axios.delete(`${API_BASE_URL}/amenity_info/${id}/`);
 
         if(response.status === 204) {
             await fetchAmenities();

@@ -4,8 +4,8 @@ import { useNavigate } from 'react-router-dom';
 
 const AddPropertyType = () => {
     const [propertyTypeName, setPropertyTypeName] = useState('');
-    const [propertyNumber, setPropertyNumber] = useState('');
-    const [jointNumber, setJointNumber] = useState('');
+    // const [propertyNumber, setPropertyNumber] = useState('');
+    // const [jointNumber, setJointNumber] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
     const navigate = useNavigate();
@@ -14,15 +14,13 @@ const AddPropertyType = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        const { success, message } = await addPropertyType(propertyTypeName, propertyNumber, jointNumber);
+        const { success, message } = await addPropertyType(propertyTypeName);
 
         if (success) {
             setSuccessMessage(message);
             setErrorMessage('');
 
             setPropertyTypeName('');
-            setPropertyNumber('');
-            setJointNumber('');
         } else {
             setErrorMessage(message);
             setSuccessMessage('');
@@ -32,7 +30,7 @@ const AddPropertyType = () => {
     return (
         <>
             <form className='py-5' onSubmit={handleSubmit}>
-                <div className="mb-4">
+                {/* <div className="mb-4">
                     <input
                         type="number"
                         id="property_number"
@@ -43,8 +41,8 @@ const AddPropertyType = () => {
                         required
                         className="w-full text-sm px-4 py-2 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none focus:border-green-700"
                     />
-                </div>
-                <div className='mb-4'>
+                </div> */}
+                {/* <div className='mb-4'>
                 <input
                         type="number"
                         id="joint_number"
@@ -55,7 +53,7 @@ const AddPropertyType = () => {
                         required
                         className="w-full text-sm px-4 py-2 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none focus:border-green-700"
                     />
-                </div>
+                </div> */}
                 <div className="mb-4">
                     <input
                         type="text"

@@ -1,6 +1,6 @@
 
 from rest_framework import serializers
-from .models import AreaType, BillsSetup, Block_info, MaintenanceCost, ManagementCommittee, MemberTypeSetup,Property_info,PropertyType, Tenant,UnitType,Amenity,Service,Owner, OwnerProperty
+from .models import AreaType, BillsSetup, Block_info, FormBuilder, MaintenanceCost, ManagementCommittee, MemberTypeSetup,Property_info,PropertyType, Tenant,UnitType,Amenity,Service,Owner, OwnerProperty
 from rest_framework.exceptions import ValidationError
 
 class Block_info_serlializer(serializers.ModelSerializer):
@@ -119,7 +119,7 @@ class OwnerSerializer(serializers.ModelSerializer):
     def validate_properties(self, value):
         # Check if any property is already assigned to another owner
         for property_obj in value:
-            if property_obj.owner_id and property_obj.owner_id != self.instance.pk:
+            if property_obj.owner_id and (not self.instance or property_obj.owner_id != self.instance.pk):
                 raise ValidationError(
                     f"Property {property_obj.property_name} is already assigned to another owner and cannot be reassigned."
                 )
@@ -204,17 +204,56 @@ class TenantSerializer(serializers.ModelSerializer):
             'other_monthly_utility_charges',
             'assign_property',
             'agreement_attachment',
-        ]    
+        ]   
+class FormBuilderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FormBuilder
+        fields = '__all__'  # This will include all fields from the FormBuilder model
+
         
-class BillsSetupSerializer(serializers.ModelSerializer):
+class BillsSetupDisplaySerializer(serializers.ModelSerializer):
+    form = FormBuilderSerializer(read_only=True)
     class Meta:
         model = BillsSetup
-        fields = ['bill_setup_id', 'property_type_name', 'property_area', 'property_number', 'charges']
+        fields = ['bill_setup_id', 'form', 'form_id','property_type_name', 'property_area', 'property_number', 'form_data']
 
     def validate_charges(self, value):
         if not isinstance(value, dict):
             raise serializers.ValidationError("Charges must be a dictionary of key-value pairs.")
-        return value        
+        return value                       
+class BillsSetupSerializer(serializers.ModelSerializer):
+
+    form_id = serializers.PrimaryKeyRelatedField(queryset=FormBuilder.objects.all(), source='form')
+    
+    class Meta:
+        model = BillsSetup
+        fields = ['bill_setup_id', 'form', 'form_id','property_type_name', 'property_area', 'property_number', 'form_data']
+
+    def validate_charges(self, value):
+        if not isinstance(value, dict):
+            raise serializers.ValidationError("Charges must be a dictionary of key-value pairs.")
+        return value
+# class BillsSetupDisplaySerializer(serializers.ModelSerializer):
+#     property_type_name = Property_type_serializer()
+#     property_area = AreaTypeSerializer() 
+#     class Meta:
+#         model = BillsSetup
+#         fields = ['bill_setup_id', 'property_type_name', 'property_area', 'property_number', 'charges']
+
+#     def validate_charges(self, value):
+#         if not isinstance(value, dict):
+#             raise serializers.ValidationError("Charges must be a dictionary of key-value pairs.")
+#         return value  
+        
+# class BillsSetupSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = BillsSetup
+#         fields = ['bill_setup_id', 'property_type_name', 'property_area', 'property_number', 'charges']
+
+#     def validate_charges(self, value):
+#         if not isinstance(value, dict):
+#             raise serializers.ValidationError("Charges must be a dictionary of key-value pairs.")
+#         return value        
  
  
 class MemberTypeSetupSerializer(serializers.ModelSerializer):

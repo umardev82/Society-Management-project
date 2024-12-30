@@ -5,8 +5,9 @@ import { FiMenu, FiBell, FiUser } from "react-icons/fi";
 import { MdKeyboardDoubleArrowRight } from "react-icons/md";
 import { BsBank } from "react-icons/bs";
 import { TbLogout2 } from "react-icons/tb";
-import { FaCubes, FaCaretDown, FaCaretRight, FaRegClone } from "react-icons/fa";
+import { FaCubes, FaCaretDown, FaCaretRight, FaRegClone, FaUser, FaUsers } from "react-icons/fa";
 import { FaHouseFloodWaterCircleArrowRight, FaBuilding, FaBuildingColumns } from "react-icons/fa6";
+import { GrServices } from "react-icons/gr";
 import { IoMdClose } from "react-icons/io";
 import Dashboard from "./dashboard";
 import PropertyList from "./property/propertyList";
@@ -19,6 +20,23 @@ import AddUnitType from "./unitType/addUnitType";
 import UnitTypeList from "./unitType/unitTypeList";
 import AddPropertyType from "./propertyType/addPropertyType";
 import PropertyTypeList from "./propertyType/propertyTypeList";
+import OwnerList from "./owner/ownerList";
+import AddOwner from "./owner/addOwner";
+import AddTenant from "./tenant/addTenant";
+import TenantList from "./tenant/tenantList";
+import AddService from "./serviceInfo/addService";
+import ServiceList from "./serviceInfo/serviceList";
+import AddAreaType from "./areaType/addAreaType";
+import AreaTypeList from "./areaType/areaTypeList";
+import AddMemberType from "./memberType/addMemberType";
+import ListMemberType from "./memberType/listMemberType";
+import McList from "./maintenanceCost/mcList";
+import AddMc from "./maintenanceCost/addMc";
+import AddManagementCommittee from "./managementCommittee/addManagementCommittee";
+import ManagementCommitteeList from "./managementCommittee/managementCommitteeList";
+import BillSetup from "./billSetup/billSetup";
+import AddForm from "./formBuilder/addForm";
+import FormsList from "./formBuilder/formList";
 
 const Main = () => {
   const [activeItem, setActiveItem] = useState("Dashboard");
@@ -69,6 +87,77 @@ const Main = () => {
         },
       ],
     },
+    {
+      name: "Owner",
+      icon: <FaUser />,
+      subItems: [
+        { name: "Owner List", icon: <MdKeyboardDoubleArrowRight />, component: <OwnerList /> },
+        { name: "Add Owner", icon: <MdKeyboardDoubleArrowRight />, component: <AddOwner /> },
+      ],
+    },
+    {
+      name: "Tenant",
+      icon: <FaUsers/>,
+      subItems: [
+         { name: "Add Tenant", icon: <MdKeyboardDoubleArrowRight/>, component: <AddTenant/>},
+         { name: "Tenant List", icon: <MdKeyboardDoubleArrowRight/>, component: <TenantList/>},
+      ],
+    },
+    {
+      name: "Service",
+      icon: <GrServices/>,
+      subItems: [
+         { name: "Add Service", icon: <MdKeyboardDoubleArrowRight/>, component: <AddService/>},
+         { name: "Service List", icon: <MdKeyboardDoubleArrowRight/>, component: <ServiceList/>},
+      ],
+    },
+    {
+      name: "Area Type",
+      icon: <GrServices/>,
+      subItems: [
+        {name: "Add Area Type", icon: <MdKeyboardDoubleArrowRight/>, component: <AddAreaType/>},
+        {name: "Area Type List", icon: <MdKeyboardDoubleArrowRight/>, component: <AreaTypeList/>},
+      ]
+    },
+    {
+      name: "Member Type",
+      icon:<FaUser/>,
+      subItems:[
+        {name: "Add Member Type", icon: <MdKeyboardDoubleArrowRight/>, component: <AddMemberType/>},
+        {name: "Member Type List", icon: <MdKeyboardDoubleArrowRight/>, component: <ListMemberType/>},
+      ]
+    },
+    {
+      name: "Maintenance Cost",
+      icon:<FaUser/>,
+      subItems:[
+        {name: "Add Maintenance Cost", icon: <MdKeyboardDoubleArrowRight/>, component: <AddMc/>},
+        {name: "Maintenance Cost List", icon: <MdKeyboardDoubleArrowRight/>, component: <McList/>},
+      ]
+    },
+    {
+      name: "Management Committee",
+      icon:<FaUser/>,
+      subItems:[
+        {name: "Add Management Committee", icon: <MdKeyboardDoubleArrowRight/>, component: <AddManagementCommittee/>},
+        {name: "Management Commitee List", icon: <MdKeyboardDoubleArrowRight/>, component: <ManagementCommitteeList/>},
+      ]
+    },
+    {
+      name: "Bill Setup",
+      icon:<FaUser/>,
+      subItems:[
+        {name: "Bill Setup", icon: <MdKeyboardDoubleArrowRight/>, component: <BillSetup/>},
+       ]
+    },
+    {
+      name: "Form Builder",
+      icon:<FaUser/>,
+      subItems:[
+        {name: "Add Form", icon: <MdKeyboardDoubleArrowRight/>, component: <AddForm/>},
+        {name: "Form List", icon: <MdKeyboardDoubleArrowRight/>, component: <FormsList/>},        
+       ]
+    },
     { name: "Logout", icon: <TbLogout2 /> },
   ];
 
@@ -102,6 +191,40 @@ const Main = () => {
         return <AddPropertyType />;
       case "Property Type List":
         return <PropertyTypeList />;
+      case "Owner List":
+        return <OwnerList/>;
+      case "Add Owner":
+        return <AddOwner/>;
+      case "Add Tenant":
+        return <AddTenant/>;
+      case "Tenant List":
+        return <TenantList/>;
+      case "Add Service":
+        return <AddService/>;
+      case "Service List":
+        return <ServiceList/>;
+      case "Add Area Type":
+        return <AddAreaType/>;
+      case "Area Type List":
+        return <AreaTypeList/>;
+      case "Add Member Type":
+        return <AddMemberType/>;
+      case "Member Type List":
+        return  <ListMemberType/>;
+      case "Add Maintenance Cost":
+        return <AddMc/>;
+      case "Maintenance Cost List":
+        return <McList/>;
+      case "Add Management Committee":
+        return <AddManagementCommittee/>;
+      case "Management Commitee List":
+        return <ManagementCommitteeList/>;
+      case "Bill Setup":
+        return <BillSetup/>;
+      case "Add Form":
+        return <AddForm/>;
+      case "Form List":
+        return <FormsList/>;
       case "Logout":
         handleLogout();
         return null;

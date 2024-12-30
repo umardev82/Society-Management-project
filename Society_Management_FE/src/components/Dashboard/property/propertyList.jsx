@@ -4,20 +4,24 @@ import useBlock from '../../../hooks/useBlock';
 import useAmenity from '../../../hooks/useAmenity';
 import useUnitType from '../../../hooks/useUnitType';
 import usePropertyType from '../../../hooks/usePropertyType';
+import useAreaType from '../../../hooks/useAreaType';
 import Modal from '../modal';
 import { FaEdit, FaTrash, FaEye } from 'react-icons/fa';
 
 const PropertyList = () => {
-  const {countries, cities, fetchCities, properties, deleteProperty, editProperty, fetchProperties, loading, error } = useProperty();
+  const {countries, cities, fetchCities, properties, deleteProperty, fetchProperties, editProperty, loading, error } = useProperty();
   const { blocks, fetchBlocks } = useBlock();
   const { amenities, fetchAmenities } = useAmenity();
   const { unitTypes, fetchUnitTypes} = useUnitType();
   const { propertyTypes, fetchPropertyTypes} = usePropertyType();
+  const { areaTypes, fetchAreaTypes } = useAreaType(); 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [selectedProperty, setSelectedProperty] = useState(null);
   const [editPropertyData, setEditPropertyData] = useState({});
+  const [successMessage, setSuccessMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
     fetchProperties();
@@ -25,8 +29,10 @@ const PropertyList = () => {
     fetchBlocks();
     fetchUnitTypes();
     fetchPropertyTypes();
+    fetchAreaTypes();
   }, []);
-
+    // Log whenever successMessage or errorMessage changes
+  
   if (loading) {
     return <div>Loading...</div>;
   }
@@ -42,6 +48,8 @@ const PropertyList = () => {
       building_name: property.building_name,
       property_name: property.property_name,
       property_type: property.property_type?.pro_type_id,
+      property_number: property.property_number,
+      joint_number: property.joint_number,
       unit_type: property.unit_type?.unit_type_id,
       floor_number: property.floor_number,
       number_of_bedrooms: property.number_of_bedrooms,
@@ -52,8 +60,7 @@ const PropertyList = () => {
       street_address: property.street_address,
       city: property.city,
       country: property.country,
-      area_type: property.area_type,
-      area_value: property.area_value,
+      property_area: property.property_area?.area_type_id,
       property_value: property.property_value,
       status:property.status,
       amenity_name: property.amenity_name?.amenity_id,
@@ -75,16 +82,30 @@ const PropertyList = () => {
     setIsViewModalOpen(true);
   };
 
-  const handleEditProperty = () => {
+
+
+
+  const handleEditProperty = async () => {
     if (selectedProperty) {
-      editProperty(selectedProperty.property_id, editPropertyData).then(() => {
-        fetchProperties();
-        setIsEditModalOpen(false);
-      }).catch(error => {
-        console.error("Error editing property:", error);
-      });
+      const result = await editProperty(selectedProperty.property_id, editPropertyData);
+      
+      if (!result.success) {
+        setErrorMessage(result.message); // Set error message from API response
+      } else {
+        setErrorMessage('');
+        setSuccessMessage(result.message); // Set success message if successful
+        setTimeout(() => {
+          setIsEditModalOpen(false);
+          setSelectedProperty(null);
+          setSuccessMessage('');
+          setErrorMessage('');
+          fetchProperties();
+        }, 2000);
+      }
     }
   };
+  
+  
   
 
   const handleDeleteProperty = () => {
@@ -119,6 +140,7 @@ const PropertyList = () => {
             <th className="border text-start px-4 whitespace-nowrap py-2">Building Name</th>
             <th className="border text-start px-4 whitespace-nowrap py-2">Property Name</th>
             <th className="border text-start px-4 whitespace-nowrap py-2">Property Number</th>
+            <th className="border text-start px-4 whitespace-nowrap py-2">Joint Number</th>
             <th className="border text-start px-4 whitespace-nowrap py-2">Property Type</th>
             <th className="border text-start px-4 whitespace-nowrap py-2">Unit Number</th>
             <th className="border text-start px-4 whitespace-nowrap py-2">Unit Type</th>
@@ -131,8 +153,7 @@ const PropertyList = () => {
             <th className="border text-start px-4 whitespace-nowrap py-2">Street Address</th>
             <th className="border text-start px-4 whitespace-nowrap py-2">City</th>
             <th className="border text-start px-4 whitespace-nowrap py-2">Country</th>
-            <th className="border text-start px-4 whitespace-nowrap py-2">Area Type</th>
-            <th className="border text-start px-4 whitespace-nowrap py-2">Area Value</th>
+            <th className="border text-start px-4 whitespace-nowrap py-2">Property Area</th>
             <th className="border text-start px-4 whitespace-nowrap py-2">Property Value</th>
             <th className="border text-start px-4 whitespace-nowrap py-2">Amenity Name</th>
             <th className="border text-start px-4 whitespace-nowrap py-2">Size in SQM</th>
@@ -149,7 +170,8 @@ const PropertyList = () => {
               <td className="border px-4 whitespace-nowrap py-2 ">{property.block_name?.block_name || "N/A"}</td>
               <td className="border px-4 whitespace-nowrap py-2 ">{property.building_name}</td>
               <td className="border px-4 whitespace-nowrap py-2 ">{property.property_name}</td>
-              <td className="border px-4 whitespace-nowrap py-2 ">{property.property_type?.property_number}</td>
+              <td className="border px-4 whitespace-nowrap py-2 ">{property.property_number}</td>
+              <td className="border px-4 whitespace-nowrap py-2 ">{property.joint_number}</td>
               <td className="border px-4 whitespace-nowrap py-2 ">{property.property_type?.property_name}</td>
               <td className="border px-4 whitespace-nowrap py-2 ">{property.unit_type?.unit_number}</td>
               <td className="border px-4 whitespace-nowrap py-2 ">{property.unit_type?.unit_name}</td>
@@ -162,8 +184,7 @@ const PropertyList = () => {
               <td className="border px-4 whitespace-nowrap py-2 ">{property.street_address}</td>
               <td className="border px-4 whitespace-nowrap py-2 ">{property.city}</td>
               <td className="border px-4 whitespace-nowrap py-2 ">{property.country}</td>
-              <td className="border px-4 whitespace-nowrap py-2 ">{property.area_type}</td>
-              <td className="border px-4 whitespace-nowrap py-2 ">{property.area_value}</td>
+              <td className="border px-4 whitespace-nowrap py-2 ">{property.property_area?.area_type_name} - {property.property_area?.area_value}</td>
               <td className="border px-4 whitespace-nowrap py-2 ">{property.property_value}</td>
               <td className="border px-4 whitespace-nowrap py-2 ">{property.amenity_name?.amenity_name}</td>
               <td className="border px-4 whitespace-nowrap py-2 ">{property.size_in_sqm}</td>
@@ -184,8 +205,7 @@ const PropertyList = () => {
       
         <Modal isVisible={isEditModalOpen} onClose={() => setIsEditModalOpen(false)}>
           <h2 className="text-xl mb-4">Edit Property</h2>
-          <form>
-          <div className='grid grid-cols-2 gap-x-2'>
+               <div className='grid grid-cols-2 gap-x-2'>
     <div className="mb-2">
       <input type="text" name="property_name" placeholder='Property Name' value={editPropertyData.property_name} onChange={handleChange} required className="w-full text-sm px-4 py-2 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none focus:border-green-700"/>
     </div>
@@ -204,10 +224,17 @@ const PropertyList = () => {
       <select name="property_type" value={editPropertyData.property_type} onChange={handleChange} required className="w-full text-sm px-4 py-2 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none focus:border-green-700">
         <option value="">Select Property Type</option>
         {propertyTypes.map((propertyType) => (
-    <option key={propertyType.pro_type_id} value={propertyType.pro_type_id}>{propertyType.property_number} - {propertyType.property_name}</option>  
+    <option key={propertyType.pro_type_id} value={propertyType.pro_type_id}>{propertyType.property_name}</option>  
   ))}
       </select>
     </div>
+    <div className="mb-2">
+      <input type="text" name="property_number" placeholder='Property Number' value={editPropertyData.property_number} onChange={handleChange} required className="w-full text-sm px-4 py-2 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none focus:border-green-700"/>
+    </div>
+    <div className="mb-2">
+      <input type="text" name="joint_number" placeholder='Joint Number' value={editPropertyData.joint_number} onChange={handleChange} required className="w-full text-sm px-4 py-2 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none focus:border-green-700"/>
+    </div>
+
     <div className="mb-2">
       <select name="unit_type" value={editPropertyData.unit_type} onChange={handleChange} required className="w-full text-sm px-4 py-2 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none focus:border-green-700">
         <option value="">Select Unit Type</option>
@@ -294,17 +321,12 @@ const PropertyList = () => {
     ))}
   </select>
 </div>
-
         <div className="mb-2">
-          <select name="area_type" value={editPropertyData.area_type} onChange={handleChange} className="w-full text-sm px-4 py-2 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none focus:border-green-700">
-            <option value="">Area Type</option>
-            <option value="SQFT">Square Feet (SQFT)</option>
-            <option value="MARLA">Marla</option>
-            <option value="KANAL">Kanal</option>
-          </select>
-        </div>
-        <div className="mb-2">
-          <input type="number" name="area_value" placeholder='Area Value' value={editPropertyData.area_value} onChange={handleChange} className="w-full text-sm px-4 py-2 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none focus:border-green-700" />
+          <select name="property_area" value={editPropertyData.property_area} onChange={handleChange} className="w-full text-sm px-4 py-2 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none focus:border-green-700">
+          <option value="">Select Area Type</option>
+        {areaTypes.map((areaType) => (
+    <option key={areaType.area_type_id} value={areaType.area_type_id}>{areaType.area_type_name} - {areaType.area_value}</option>  
+  ))}</select>
         </div>
         <div className="mb-2">
           <input type="text" name="property_value" placeholder='Property Value' value={editPropertyData.property_value} onChange={handleChange} className="w-full text-sm px-4 py-2 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none focus:border-green-700" />
@@ -368,7 +390,11 @@ const PropertyList = () => {
 
     </div>
             <button type="button" className="w-auto mt-2 bg-green-700 text-white px-5 py-2 rounded-sm hover:bg-green-600 transition-colors duration-300" onClick={handleEditProperty}>Save</button>
-          </form>
+                     
+             {successMessage && <p style={{ color: "green" }}>Success: {successMessage}</p>}
+             {errorMessage && <p style={{ color: "red" }}>Error: {errorMessage}</p>}
+             
+          
         </Modal>
     
     

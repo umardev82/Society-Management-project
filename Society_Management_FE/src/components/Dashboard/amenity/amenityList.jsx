@@ -100,13 +100,13 @@ const AmenityList = () => {
       </tbody>
     </table>
 
-    {/* View Block Modal */}
+    {/* View Amnenity Modal */}
     <Modal isVisible={isViewModalOpen} onClose={() => setIsViewModalOpen(false)}>
-      <h2 className="text-xl mb-4">Block Details</h2>
+      <h2 className="text-xl mb-4">Amnenity Details</h2>
       <p><strong>Amenity Name:</strong> {selectedAmenity?.amenity_name}</p>
     </Modal>
 
-    {/* Edit Block Modal */}
+    {/* Edit Amnenity Modal */}
     <Modal isVisible={isEditModalOpen} onClose={() => setIsEditModalOpen(false)}>
       <h2 className="text-xl mb-4">Edit Amenity</h2>
       <input
@@ -126,7 +126,7 @@ const AmenityList = () => {
     {/* Delete Confirmation Modal */}
     <Modal isVisible={isDeleteModalOpen} onClose={() => setIsDeleteModalOpen(false)}>
       <h2 className="text-xl mb-4">Confirm Delete</h2>
-      <p>Are you sure you want to delete block "{selectedAmenity?.amenity_name}"?</p>
+      <p>Are you sure you want to delete Amnenity "{selectedAmenity?.amenity_name}"?</p>
       <button
         onClick={handleDeleteAmenity}
         className="mt-4 bg-red-500 text-white px-4 py-2 rounded-sm"

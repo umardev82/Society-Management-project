@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useState, useEffect } from "react";
+import API_BASE_URL from "../config";
 
 const useUnitType = () => {
     const [unitTypes, setUnitTypes] = useState([]);
@@ -9,7 +10,7 @@ const useUnitType = () => {
     // Add unit type
     const addUnitType = async (unitName, unitNumber) => {
         try {
-            const response = await axios.post('http://127.0.0.1:8000/unit_type_info/', {
+            const response = await axios.post(`${API_BASE_URL}/unit_type_info/`, {
                 unit_name: unitName,
                 unit_number: unitNumber,
             });
@@ -35,7 +36,7 @@ const useUnitType = () => {
     // Fetch unit types
     const fetchUnitTypes = async () => {
         try {
-            const response = await axios.get('http://127.0.0.1:8000/unit_type_info/');
+            const response = await axios.get(`${API_BASE_URL}/unit_type_info/`);
             setUnitTypes(response.data);
         } catch (err) {
             setError(err);
@@ -51,7 +52,7 @@ const useUnitType = () => {
     // Edit unit type
     const editUnitType = async (id, updatedUnitName, updatedUnitNumber) => {
         try {
-            const response = await axios.put(`http://127.0.0.1:8000/unit_type_info/${id}/`, {
+            const response = await axios.put(`${API_BASE_URL}/unit_type_info/${id}/`, {
                 unit_name: updatedUnitName,
                 unit_number: updatedUnitNumber,
             });
@@ -81,7 +82,7 @@ const useUnitType = () => {
     // Delete unit type
     const deleteUnitType = async (id) => {
         try {
-            const response = await axios.delete(`http://127.0.0.1:8000/unit_type_info/${id}/`);
+            const response = await axios.delete(`${API_BASE_URL}/unit_type_info/${id}/`);
 
             if (response.status === 204) {
                 await fetchUnitTypes();

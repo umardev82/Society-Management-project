@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import API_BASE_URL from "../config";
 
 const useProperty = () => {
   const [properties, setProperties] = useState([]);
@@ -13,7 +14,7 @@ const useProperty = () => {
   // Fetch properties (GET)
   const fetchProperties = async () => {
     try {
-      const response = await axios.get('http://127.0.0.1:8000/property_info/');
+      const response = await axios.get(`${API_BASE_URL}/property_info/`);
       setProperties(response.data);
     } catch (err) {
       setError(err);
@@ -49,34 +50,37 @@ const useProperty = () => {
   // Add property (POST)
   const addProperty = async (propertyData) => {
     try {
-      console.log('..shuw')
-      const response = await axios.post('http://127.0.0.1:8000/property_info/', propertyData);
+      console.log('add property...')
+      const response = await axios.post(`${API_BASE_URL}/property_info/`, propertyData);
+
       setProperties([...properties, response.data]);
       setSuccessMessage('Property added successfully!');
       return true;
     } catch (error) {
-      setErrorMessage('Failed to add property. Please try again.');
+      setErrorMessage(error?.response?.data?.property_number?.[0]  || 'Failed to add property. Please try again.');
       return false;
     }
   };
 
-  // Edit property (PUT)
+  // editproperty
   const editProperty = async (id, updatedData) => {
     try {
-      const response = await axios.put(`http://127.0.0.1:8000/property_info/${id}/`, updatedData);
-      setProperties(properties.map(property => property.property_id === id ? response.data : property)); // Change to property.property_id
-      setSuccessMessage('Property updated successfully!');
-      return true;
+      const response = await axios.put(`${API_BASE_URL}/property_info/${id}/`, updatedData);
+      setProperties(properties.map(property => property.property_id === id ? response.data : property));
+      return { success: true, message: 'Property updated successfully!' };
     } catch (error) {
-      setErrorMessage('Failed to update property. Please try again.');
-      return false;
+      return { 
+        success: false, 
+        message: error?.response?.data?.property_number?.[0] || 'Failed to update property. Please try again.' 
+      };
     }
   };
+  
 
   // Delete property (DELETE)
   const deleteProperty = async (id) => {
     try {
-      await axios.delete(`http://127.0.0.1:8000/property_info/${id}/`);
+      await axios.delete(`${API_BASE_URL}/property_info/${id}/`);
       setProperties(properties.filter(property => property.property_id !== id)); // Change to property.property_id
       setSuccessMessage('Property deleted successfully!');
       return true;

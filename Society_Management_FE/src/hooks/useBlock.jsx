@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import API_BASE_URL from "../config";
 
 const useBlock = () => {
   const [blocks, setBlocks] = useState([]);
@@ -9,7 +10,7 @@ const useBlock = () => {
   // Fetch blocks (GET)
   const fetchBlocks = async () => {
     try {
-      const response = await axios.get('http://127.0.0.1:8000/block_info/');
+      const response = await axios.get(`${API_BASE_URL}/block_info/`);
       setBlocks(response.data);
     } catch (err) {
       setError(err);
@@ -25,7 +26,7 @@ const useBlock = () => {
   // Add block (POST)
   const addBlock = async (blockName) => {
     try {
-      const response = await axios.post('http://127.0.0.1:8000/block_info/', {
+      const response = await axios.post(`${API_BASE_URL}/block_info/`, {
         block_name: blockName,
       });
 
@@ -45,7 +46,7 @@ const useBlock = () => {
   // Edit block (PUT/PATCH)
   const editBlock = async (id, updatedBlockName) => {
     try {
-      const response = await axios.put(`http://127.0.0.1:8000/block_info/${id}/`, {
+      const response = await axios.put(`${API_BASE_URL}/block_info/${id}/`, {
         block_name: updatedBlockName,
       });
 
@@ -65,7 +66,7 @@ const useBlock = () => {
   // Delete block (DELETE)
   const deleteBlock = async (id) => {
     try {
-      const response = await axios.delete(`http://127.0.0.1:8000/block_info/${id}/`);
+      const response = await axios.delete(`${API_BASE_URL}/block_info/${id}/`);
 
       if (response.status === 204) {
         // Fetch the updated block list after deletion
