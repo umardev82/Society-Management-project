@@ -101,6 +101,7 @@ class Property_info(models.Model):
     document_attachment = models.FileField(upload_to='documents/', null=True, blank=True)  # Document attachment
     is_rented = models.BooleanField(choices=[(True, 'Yes'), (False, 'No')], default=False)  # Rented (Yes/No)
     owner = models.ForeignKey('Owner', related_name='properties', on_delete=models.CASCADE,null=True, blank=True)  # Ensure this line exists  # Create the one-to-many relationship here
+    
    
     
     def __str__(self):
@@ -176,8 +177,8 @@ class Tenant(models.Model):
     def __str__(self):
         return self.tenant_name
     
-#    #bills Setup models
-
+    
+    
 # add model form Bilders
     
 class FormBuilder(models.Model):
@@ -185,32 +186,18 @@ class FormBuilder(models.Model):
     form_fields = models.JSONField()  # Stores field definitions as JSON
     
     def __str__(self):
-        return self.form_name
-    
+        return self.form_name    
    #bills Setup models 
 class BillsSetup(models.Model):
     form = models.ForeignKey(FormBuilder, on_delete=models.CASCADE, related_name='bills', null=True, blank=True)
     bill_setup_id = models.AutoField(primary_key=True)  # Custom primary key
     property_type_name = models.ForeignKey('PropertyType', on_delete=models.CASCADE, related_name='bills_setups')
     property_area = models.ForeignKey('AreaType', on_delete=models.CASCADE, related_name='bills_setups')
-    property_number = models.ForeignKey('Property_info', on_delete=models.CASCADE,related_name='bills_setups',null=True, blank=True) 
-    form_data = models.JSONField()  # Use JSONField for dynamic fields
-    
+    property_number = models.ForeignKey('Property_info', on_delete=models.CASCADE, related_name='bills_setups')
+    charges = models.JSONField()  # Use JSONField for dynamic fields
+
     def __str__(self):
-        return f"Bills setup for {self.form.form_name} - {self.property_type_name} - {self.property_area} - {self.property_number}"
-
-
-
-
-# class BillsSetup(models.Model):
-#     bill_setup_id = models.AutoField(primary_key=True)  # Custom primary key
-#     property_type_name = models.ForeignKey('PropertyType', on_delete=models.CASCADE, related_name='bills_setups')
-#     property_area = models.ForeignKey('AreaType', on_delete=models.CASCADE, related_name='bills_setups')
-#     property_number = models.ForeignKey('Property_info', on_delete=models.CASCADE, related_name='bills_setups')
-#     charges = models.JSONField()  # Use JSONField for dynamic fields
-
-#     def __str__(self):
-#         return f"Bills setup for {self.property_type_name} - {self.property_area} - {self.property_number}"
+        return f"Bills setup for {self.property_type_name} - {self.property_area} - {self.property_number}"
     
    #add model ManagementCommittee
 class ManagementCommittee(models.Model):
@@ -267,4 +254,20 @@ class MaintenanceCost(models.Model):
     def __str__(self):
         return self.m_title    
  
-  
+ 
+
+# Payments Collection model
+class PaymentsCollection(models.Model):
+    payments_collection_mode=models.CharField(max_length=255,blank=True,null=True)
+    block_name = models.ForeignKey(Block_info, on_delete=models.CASCADE)
+    property_number = models.CharField(max_length=255, blank=True, null=True)
+    name_id = models.CharField(max_length=255, blank=True, null=True)  # Owner/Tenant name
+    month = models.CharField(max_length=255, blank=True,null=True)
+    year = models.CharField(max_length=255, blank=True,null=True)
+    bills_fields = models.JSONField(blank=True, null=True)
+    total_cuttent_bills = models.CharField(max_length=255, blank=True,null=True)
+    issue_date = models.DateField()
+    due_date = models.DateField()
+
+    def __str__(self):
+        return f"Payment for {self.property_number} in block {self.block_name}"

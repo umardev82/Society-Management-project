@@ -1,6 +1,6 @@
 
 from rest_framework import serializers
-from .models import AreaType, BillsSetup, Block_info, FormBuilder, MaintenanceCost, ManagementCommittee, MemberTypeSetup,Property_info,PropertyType, Tenant,UnitType,Amenity,Service,Owner, OwnerProperty
+from .models import AreaType, BillsSetup, Block_info, FormBuilder, MaintenanceCost, ManagementCommittee, MemberTypeSetup, PaymentsCollection,Property_info,PropertyType, Tenant,UnitType,Amenity,Service,Owner, OwnerProperty
 from rest_framework.exceptions import ValidationError
 
 class Block_info_serlializer(serializers.ModelSerializer):
@@ -279,4 +279,26 @@ class MaintenanceCostSerializer(serializers.ModelSerializer):
         model = MaintenanceCost
         fields = '__all__' 
 
-                       
+
+
+class PaymentsCollectionSerializer(serializers.ModelSerializer):
+    block_name = serializers.PrimaryKeyRelatedField(queryset=Block_info.objects.all())
+    property_numbers = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = PaymentsCollection
+        fields = ['payments_collection_mode','block_name', 'property_number', 'property_numbers', 'name_id', 'month','year', 'bills_fields','total_cuttent_bills', 'issue_date', 'due_date']
+
+    def get_property_numbers(self, instance):
+        block_name = self.context.get('block_name')
+        if block_name:
+            # Fetch all property numbers based on the selected block
+            properties = Property_info.objects.filter(block_name=block_name)
+            return [property.property_number for property in properties]
+        return []
+
+    def validate_property_number(self, value):
+        # Check if the property number exists
+        if not Property_info.objects.filter(property_number=value).exists():
+            raise ValidationError("Invalid property number.")
+        return value

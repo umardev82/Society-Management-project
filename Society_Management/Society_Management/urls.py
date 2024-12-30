@@ -5,7 +5,7 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from All_information.views import AreaTypeViewSet, BillsSetupViewSet, BlockInfoViewSet, FormBuilderViewSet, MaintenanceCostViewSet, ManagementCommitteeViewSet, MemberTypeSetupViewSet,PropertyInfoViewSet,PropertyTypeViewSet, TenantViewSet,UnitTypeViewSet,AmenityViewSet,ServiceViewSet,OwnerViewSet,OwnerPropertyViewSet
+from All_information.views import AreaTypeViewSet, BillsSetupViewSet, BlockInfoViewSet, FormBuilderViewSet, MaintenanceCostViewSet, ManagementCommitteeViewSet, MemberTypeSetupViewSet, PaymentsCollectionViewSet,PropertyInfoViewSet,PropertyTypeViewSet, TenantViewSet,UnitTypeViewSet,AmenityViewSet,ServiceViewSet,OwnerViewSet,OwnerPropertyViewSet
 
 
 # Define the router and register the viewset
@@ -27,9 +27,14 @@ router.register('management-committee', ManagementCommitteeViewSet)
 router.register('maintenance_costs', MaintenanceCostViewSet)
 
 
+router.register('payments-collection', PaymentsCollectionViewSet)
+
+
+
 urlpatterns = [
     path('admin/', admin.site.urls),
-
+    path('get-property-numbers/', PaymentsCollectionViewSet.as_view({'get': 'get_property_numbers'}), name='get_property_numbers'),
+    path('get_property_owner_or_tenant/', PaymentsCollectionViewSet.as_view({'get': 'get_property_owner_or_tenant'}), name='get_property_owner_or_tenant'),
     path('api/user/', include('user_management.urls')),
     path('', include(router.urls)), 
 ]
